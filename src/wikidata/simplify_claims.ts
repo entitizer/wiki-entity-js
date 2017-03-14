@@ -1,37 +1,32 @@
 
 
-import { WikidataEntityClaimsType, WikidataEntityClaimType } from './types';
-
-export type OptionsType = {
-    entityPrefix?: string;
-    propertyPrefix?: string;
-}
+import { WikidataEntityClaims, WikidataProperty, WikidataPropertyValue } from './types';
 
 // Expects an entity 'claims' object
 // Ex: entity.claims
-export function simplifyClaims(claims: any, opts: OptionsType = {}): WikidataEntityClaimsType {
-    const simpleClaims = {};
+export function simplifyClaims(claims: any): WikidataEntityClaims {
+    const simpleClaims:WikidataEntityClaims = {};
     for (let id in claims) {
         let propClaims = claims[id];
-        if (opts.propertyPrefix) {
-            id = opts.propertyPrefix + ':' + id;
-        }
-        simpleClaims[id] = simplifyPropertyClaims(propClaims, opts);
+        simpleClaims[id] = simplifyPropertyClaims(propClaims, id);
     }
     return simpleClaims;
 }
 
 // Expects the 'claims' array of a particular property
 // Ex: entity.claims.P369
-export function simplifyPropertyClaims(propClaims: any[], opts: OptionsType = {}): WikidataEntityClaimType[] {
-    return propClaims
-        .map((claim) => simplifyClaim(claim, opts))
-        .filter(nonNull)
+export function simplifyPropertyClaims(propClaims: any[], id: string): WikidataProperty {
+    const prop: WikidataProperty = {
+        id,
+        values: propClaims.map((claim) => simplifyClaim(claim)).filter(nonNull)
+    };
+
+    return prop;
 }
 
 // Expects a single claim object
 // Ex: entity.claims.P369[0]
-export function simplifyClaim(claim, opts: OptionsType = {}): WikidataEntityClaimType {
+export function simplifyClaim(claim): WikidataPropertyValue {
     // tries to replace wikidata deep claim object by a simple value
     // e.g. a string, an entity Qid or an epoch time number
     const { mainsnak, qualifiers } = claim
@@ -44,6 +39,7 @@ export function simplifyClaim(claim, opts: OptionsType = {}): WikidataEntityClai
     if (datavalue === null) return null
 
     let value = null
+    let value_string;
 
     switch (datatype) {
         case 'string':
@@ -56,10 +52,10 @@ export function simplifyClaim(claim, opts: OptionsType = {}): WikidataEntityClai
             value = datavalue.value.text
             break
         case 'wikibase-item':
-            value = prefixedId(datavalue, opts.entityPrefix)
+            value = datavalue.value.id;
             break
         case 'wikibase-property':
-            value = prefixedId(datavalue, opts.propertyPrefix)
+            value = datavalue.value;
             break
         case 'time':
             value = datavalue.value.time;
@@ -79,18 +75,16 @@ export function simplifyClaim(claim, opts: OptionsType = {}): WikidataEntityClai
             .map(prepareQualifierClaim)
     }
     const result = {
+        datatype,
         value,
-        qualifiers: simplifyClaims(simpleQualifiers, opts)
+        // qualifiers: simplifyClaims(simpleQualifiers, opts)
     };
-    if (Array.isArray(result) && result.length === 0 || Object.keys(result.qualifiers).length === 0) {
-        delete result.qualifiers;
-    }
-    return result;
-}
 
-const prefixedId = function (datavalue, prefix) {
-    const { id } = datavalue.value
-    return typeof prefix === 'string' ? `${prefix}:${id}` : id
+    // if (Array.isArray(result) && result.length === 0 || Object.keys(result.qualifiers).length === 0) {
+    //     delete result.qualifiers;
+    // }
+
+    return result;
 }
 
 const getLatLngFromCoordinates = (value) => [value.latitude, value.longitude]

@@ -5,31 +5,30 @@ export type IIndexType<T> = {
 
 export type WikidataEntityTypeType = 'item' | 'property';
 
+export interface WikidataPropertyValue {
+    datatype: string;
+    value: any;
+    value_string?: string;
+    label?: string;
+    description?: string;
+}
+
 export interface WikidataBaseEntity {
-    pageid?: number;
-    lastrevid?: number;
-    modified?: string;
-    type: WikidataEntityTypeType;
     id: string;
+    label?: string;
+    description?: string;
 }
 
-export type WikidataEntityQualifierType = {
-    value: string | number | any;
+export interface WikidataProperty extends WikidataBaseEntity {
+    values: WikidataPropertyValue[];
 }
 
-export type WikidataEntityClaimType = {
-    value: string | number | any;
-    qualifiers?: IIndexType<WikidataEntityQualifierType[]>;
-}
-
-export type WikidataEntityClaimsType = IIndexType<WikidataEntityClaimType[]>;
+export type WikidataEntityClaims = IIndexType<WikidataProperty>;
 
 export interface WikidataEntity extends WikidataBaseEntity {
-    labels?: IIndexType<string>;
-    descriptions?: IIndexType<string>;
-    aliases?: IIndexType<string[]>;
-    claims?: WikidataEntityClaimsType;
+    aliases?: string[];
     sitelinks?: IIndexType<string>;
+    claims?: WikidataEntityClaims;
 }
 
-export type WikidataEntityCollection = IIndexType<WikidataEntity>;
+export type WikidataEntities = IIndexType<WikidataEntity>;

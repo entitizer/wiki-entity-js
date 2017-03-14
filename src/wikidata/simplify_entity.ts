@@ -1,6 +1,6 @@
 
 
-import { OptionsType as SimplifyClaimsOptionsType, simplifyClaims } from './simplify_claims';
+import { simplifyClaims } from './simplify_claims';
 import { WikidataEntity } from './types';
 import { _ } from '../utils';
 
@@ -9,29 +9,31 @@ export type SimplifyEntityOptionsType = {
     descriptions?: boolean;
     aliases?: boolean;
     sitelinks?: boolean;
-    claims?: boolean | SimplifyClaimsOptionsType;
+    claims?: boolean;
 }
 
-export function simplifyEntity(entity: WikidataEntity, options: SimplifyEntityOptionsType = {}): WikidataEntity {
+export function simplifyEntity(lang: string, data: any, options: SimplifyEntityOptionsType = {}): WikidataEntity {
 
-    if (options.labels !== false && entity.labels) {
-        entity.labels = simplifyLabels(entity.labels);
+    const entity: WikidataEntity = { id: data.id };
+
+    if (options.labels !== false && data.labels) {
+        entity.label = simplifyLabels(data.labels)[lang];
     }
 
-    if (options.descriptions !== false && entity.descriptions) {
-        entity.descriptions = simplifyDescriptions(entity.descriptions);
+    if (options.descriptions !== false && data.descriptions) {
+        entity.description = simplifyDescriptions(data.descriptions)[lang];
     }
 
-    if (options.aliases !== false && entity.aliases) {
-        entity.aliases = simplifyAliases(entity.aliases);
+    if (options.aliases !== false && data.aliases) {
+        entity.aliases = simplifyAliases(data.aliases)[lang];
     }
 
-    if (options.sitelinks !== false && entity.sitelinks) {
-        entity.sitelinks = simplifySitelinks(entity.sitelinks);
+    if (options.sitelinks !== false && data.sitelinks) {
+        entity.sitelinks = simplifySitelinks(data.sitelinks);
     }
 
-    if (options.claims !== false && entity.claims) {
-        entity.claims = simplifyClaims(entity.claims, options.claims);
+    if (options.claims !== false && data.claims) {
+        entity.claims = simplifyClaims(data.claims);
     }
 
     return entity;

@@ -1,7 +1,7 @@
 
 import { _, Promise } from '../utils';
 import request from '../request';
-import { WikidataEntity, WikidataEntityCollection } from './types';
+import { WikidataEntity, WikidataEntities } from './types';
 
 const API_URL = 'https://www.wikidata.org/w/api.php';
 
@@ -9,20 +9,20 @@ export type GetEntitiesParamsType = {
     ids?: string,
     titles?: string,
     props?: string,
-    languages?: string,
+    language?: string,
     // sites?: string[] | string,
     // sitefilter?: string[] | string,
     redirects?: string
 }
 
-export function getEntities(params: GetEntitiesParamsType): Promise<WikidataEntityCollection> {
+export function getEntities(params: GetEntitiesParamsType): Promise<WikidataEntities> {
 
     const qs = {
         action: 'wbgetentities',
         ids: getStringArrayParam(params.ids),
         titles: getStringArrayParam(params.titles),
         props: getStringArrayParam(params.props, 'sitelinks|aliases|labels|descriptions|claims|datatype'),
-        languages: getStringArrayParam(params.languages, 'en'),
+        languages: getStringArrayParam(params.language, 'en'),
         // sitefilter: getStringArrayParam(params.sitefilter),
         redirects: params.redirects || 'yes',
         format: 'json',
@@ -44,7 +44,7 @@ export function getEntities(params: GetEntitiesParamsType): Promise<WikidataEnti
         });
 }
 
-export function getManyEntities(params: GetEntitiesParamsType): Promise<WikidataEntityCollection> {
+export function getManyEntities(params: GetEntitiesParamsType): Promise<WikidataEntities> {
     try {
         validateParams(params);
     } catch (e) {
@@ -56,7 +56,7 @@ export function getManyEntities(params: GetEntitiesParamsType): Promise<Wikidata
     const max = 50;
 
     const countParts = keyValues.length / max + 1;
-    const parts: Promise<WikidataEntityCollection>[] = [];
+    const parts: Promise<WikidataEntities>[] = [];
 
     for (var i = 0; i < countParts; i++) {
         const partParams: GetEntitiesParamsType = _.clone(params);
@@ -66,7 +66,7 @@ export function getManyEntities(params: GetEntitiesParamsType): Promise<Wikidata
         }
     }
 
-    return Promise.all<WikidataEntityCollection>(parts).then(function (results) {
+    return Promise.all<WikidataEntities>(parts).then(function (results) {
         if (results.length === 0) {
             return results;
         }

@@ -1,14 +1,16 @@
 
 import { _, Promise } from './utils';
 import { WikiEntity } from './types';
-import { getEntities as getWikidataEntities, GetEntitiesParamsType, IEntitiesOptions as IWikidataEntitiesOptions, IIndexType, WikidataEntityCollection } from './wikidata';
+import { getEntities as getWikidataEntities, GetEntitiesParamsType, IEntitiesOptions as IWikidataEntitiesOptions, IIndexType, WikidataEntities } from './wikidata';
 import { getExtracts } from './wikipedia/api';
 
 export interface IEntitiesOptions extends IWikidataEntitiesOptions {
     extracts?: boolean
 }
 
-export function getEntities(params: GetEntitiesParamsType, options: IEntitiesOptions = {}): Promise<WikidataEntityCollection> {
+export function getEntities(params: GetEntitiesParamsType, options: IEntitiesOptions = {}): Promise<WikidataEntities> {
+    const lang = params.language || 'en';
+
     return getWikidataEntities(params, options)
         .then(function (entities) {
             // console.log('entities', entities);
@@ -17,21 +19,23 @@ export function getEntities(params: GetEntitiesParamsType, options: IEntitiesOpt
                 return entities;
             }
 
-            const langTitlesMap = getEntitiesTitlesBylangs(getLanguages(params.languages), entities);
+            return entities;
 
-            return Promise.map(Object.keys(langTitlesMap), function (lang) {
-                const titles = _.map(langTitlesMap[lang], 'title');
-                // console.log('titles', titles, lang);
-                return getExtracts({ lang: lang, titles: titles.join('|') })
-                    .then(function (extracts) {
-                        extracts.forEach(item => {
-                            const it: IdTitleType = _.find(langTitlesMap[lang], { title: item.title });
-                            if (it) {
-                                _.set(entities, [it.id, 'extracts', lang].join('.'), item.extract);
-                            }
-                        });
-                    });
-            }).then(() => entities);
+            // const langTitlesMap = getEntitiesTitlesBylangs(getLanguages(params.languages), entities);
+
+            // return Promise.map(Object.keys(langTitlesMap), function (lang) {
+            //     const titles = _.map(langTitlesMap[lang], 'title');
+            //     // console.log('titles', titles, lang);
+            //     return getExtracts({ lang: lang, titles: titles.join('|') })
+            //         .then(function (extracts) {
+            //             extracts.forEach(item => {
+            //                 const it: IdTitleType = _.find(langTitlesMap[lang], { title: item.title });
+            //                 if (it) {
+            //                     _.set(entities, [it.id, 'extracts', lang].join('.'), item.extract);
+            //                 }
+            //             });
+            //         });
+            // }).then(() => entities);
         });
 }
 
@@ -40,7 +44,7 @@ type IdTitleType = {
     title: string
 }
 
-function getEntitiesTitlesBylangs(langs: string[], entities: WikidataEntityCollection): IIndexType<IdTitleType[]> {
+function getEntitiesTitlesBylangs(langs: string[], entities: WikidataEntities): IIndexType<IdTitleType[]> {
     const titles: IIndexType<IdTitleType[]> = {};
 
     Object.keys(entities).forEach(id => {
