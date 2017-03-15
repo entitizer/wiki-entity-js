@@ -1,22 +1,13 @@
 
 import { _, Promise, isWikidataId } from '../utils';
-import { WikidataEntity, WikidataEntities, WikidataPropertyValue, IIndexType } from './types';
-import { getManyEntities, GetEntitiesParamsType } from './api';
+import { WikidataEntity, WikidataEntities, WikidataPropertyValue, IIndexType, WikidataEntitiesParams } from '../types';
+import { getManyEntities } from './api';
 import { simplifyEntity } from './simplify_entity';
 
-export * from './types';
-export { GetEntitiesParamsType };
-
-export type OptionClaimsType = 'none' | 'all' | 'item' | 'property';
-
-export interface IEntitiesOptions {
-    claims?: OptionClaimsType
-}
-
-export function getEntities(params: GetEntitiesParamsType, options: IEntitiesOptions = {})
+export function getEntities(params: WikidataEntitiesParams)
     : Promise<WikidataEntities> {
 
-    options.claims = options.claims || 'all';
+    const claims = params.claims || 'none';
     const lang = params.language || 'en';
 
     return getManyEntities(params)
@@ -25,10 +16,10 @@ export function getEntities(params: GetEntitiesParamsType, options: IEntitiesOpt
             ids.forEach(id => { entities[id] = simplifyEntity(lang, entities[id]) });
 
             const tasks = [];
-            if (~['all', 'property'].indexOf(options.claims)) {
+            if (~['all', 'property'].indexOf(claims)) {
                 tasks.push(findEntitiesProperties(entities, lang));
             }
-            if (~['all', 'item'].indexOf(options.claims)) {
+            if (~['all', 'item'].indexOf(claims)) {
                 tasks.push(Promise.each(ids, function (id) {
                     return findEntityClaims(entities[id], lang);
                 }));
@@ -55,13 +46,12 @@ function findEntitiesProperties(entities: WikidataEntities, lang: string): Promi
 
     ids = _.uniq(ids);
 
-    console.log(ids);
-
     return getEntities({
         ids: ids.join('|'),
         language: lang,
-        props: 'labels|descriptions|datatype'
-    }, { claims: 'none' }).then(function (properties) {
+        props: 'labels|descriptions|datatype',
+        claims: 'none'
+    }).then(function (properties) {
         Object.keys(properties).forEach(propertyId => {
             entitiesIds.forEach(entityId => {
                 const entity = entities[entityId];
@@ -105,18 +95,18 @@ function findEntityClaims(entity: WikidataEntity, lang: string): Promise<Wikidat
         return Promise.resolve(entity);
     }
 
-    const params: GetEntitiesParamsType = {
+    const params: WikidataEntitiesParams = {
         ids: ids.join('|'),
         language: lang,
-        props: 'labels|descriptions|datatype'
+        props: 'labels|descriptions|datatype',
+        claims: 'none'
     };
 
 
-    return getEntities(params, { claims: 'none' }).then(entities => {
+    return getEntities(params).then(entities => {
         Object.keys(entities).forEach(id => {
             const item = entities[id];
             const pa = paths[item.id];
-            // console.log('pa', pa);
             pa.forEach(pai => {
                 const val = claims[pai.pid].values[pai.index];
                 if (item.label) {

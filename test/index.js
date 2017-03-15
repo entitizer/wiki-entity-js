@@ -9,7 +9,13 @@ describe('entities', function () {
             .then(function (result) {
                 assert.ok(result.Q21197);
                 assert.ok(result.Q2438184);
-                // console.log(JSON.stringify(result));
+            });
+    });
+    it('getEntities extract', function () {
+        return index.getEntities({ language: 'en', titles: 'Chișinău', props: 'labels|descriptions', extract: 2 })
+            .then(function (result) {
+                assert.ok(result.Q21197);
+                assert.ok(result.Q21197.extract);
             });
     });
 });

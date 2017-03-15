@@ -1,21 +1,11 @@
 
 import { _, Promise } from '../utils';
 import request from '../request';
-import { WikidataEntity, WikidataEntities } from './types';
+import { WikidataEntity, WikidataEntities, WikidataEntitiesParams } from '../types';
 
 const API_URL = 'https://www.wikidata.org/w/api.php';
 
-export type GetEntitiesParamsType = {
-    ids?: string,
-    titles?: string,
-    props?: string,
-    language?: string,
-    // sites?: string[] | string,
-    // sitefilter?: string[] | string,
-    redirects?: string
-}
-
-export function getEntities(params: GetEntitiesParamsType): Promise<WikidataEntities> {
+export function getEntities(params: WikidataEntitiesParams): Promise<WikidataEntities> {
 
     const qs = {
         action: 'wbgetentities',
@@ -44,7 +34,7 @@ export function getEntities(params: GetEntitiesParamsType): Promise<WikidataEnti
         });
 }
 
-export function getManyEntities(params: GetEntitiesParamsType): Promise<WikidataEntities> {
+export function getManyEntities(params: WikidataEntitiesParams): Promise<WikidataEntities> {
     try {
         validateParams(params);
     } catch (e) {
@@ -59,7 +49,7 @@ export function getManyEntities(params: GetEntitiesParamsType): Promise<Wikidata
     const parts: Promise<WikidataEntities>[] = [];
 
     for (var i = 0; i < countParts; i++) {
-        const partParams: GetEntitiesParamsType = _.clone(params);
+        const partParams: WikidataEntitiesParams = _.clone(params);
         partParams[keyName] = keyValues.slice(i * max, (i + 1) * max).join('|');
         if (partParams[keyName].length > 0) {
             parts.push(getEntities(partParams));
@@ -81,7 +71,7 @@ export function getManyEntities(params: GetEntitiesParamsType): Promise<Wikidata
     });
 }
 
-export function validateParams(params: GetEntitiesParamsType) {
+export function validateParams(params: WikidataEntitiesParams) {
     if (!params.ids && !params.titles) {
         throw new Error('Invalid params: `ids` or `titles` are required');
     }

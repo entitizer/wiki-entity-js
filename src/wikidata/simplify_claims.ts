@@ -1,6 +1,6 @@
 
 
-import { WikidataEntityClaims, WikidataProperty, WikidataPropertyValue } from './types';
+import { WikidataEntityClaims, WikidataProperty, WikidataPropertyValue } from '../types';
 
 // Expects an entity 'claims' object
 // Ex: entity.claims

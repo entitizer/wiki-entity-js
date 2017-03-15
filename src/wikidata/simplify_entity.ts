@@ -1,7 +1,7 @@
 
 
 import { simplifyClaims } from './simplify_claims';
-import { WikidataEntity } from './types';
+import { WikidataEntity } from '../types';
 import { _ } from '../utils';
 
 export type SimplifyEntityOptionsType = {

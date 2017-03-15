@@ -16,7 +16,7 @@ getEntities({ language: 'en', ids: 'Q46' }).then(entities => {});
 
 ## API
 
-### getEntities(params, options?): Promise<WikiEntities>
+### getEntities(params): Promise<WikiEntities>
 
 Gets entities from wikidata and wikipedia.
 
@@ -28,9 +28,6 @@ Required. `ids` or `titles` require. Params properties:
 - **titles** :*string* - wikipedia article titles separated by a `|`;
 - **language** :*string* - language of `titles` param and of the result object info; default: `en`
 - **props** :*string* - entity props to get. Can by: `sitelinks`|`aliases`|`labels`|`descriptions`|`claims`|`datatype`;
+- **claims** :*string* - How to resolve the claims. Can be: `none`, `all`, `item`, `property`. Default: `none`. `all` resolves `item` and `property` types.
+- **extract** :*number* - Sentences in the extract. Default: `0`.
 
-#### options
-
-Optional. Properties:
-
-- **claims** :*string* - can be: `none`, `all`, `item`, `property`. Default: `all`.
