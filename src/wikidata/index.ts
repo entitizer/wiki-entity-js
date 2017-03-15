@@ -1,6 +1,6 @@
 
 import { _, Promise, isWikidataId } from '../utils';
-import { WikidataEntity, WikidataEntities } from './types';
+import { WikidataEntity, WikidataEntities, WikidataPropertyValue, IIndexType } from './types';
 import { getManyEntities, GetEntitiesParamsType } from './api';
 import { simplifyEntity } from './simplify_entity';
 
@@ -23,58 +23,110 @@ export function getEntities(params: GetEntitiesParamsType, options: IEntitiesOpt
         .then(function (entities) {
             const ids = Object.keys(entities);
             ids.forEach(id => { entities[id] = simplifyEntity(lang, entities[id]) });
-            // console.log('options', options);
-            // if (options.claims === 'all') {
-            //     return Promise.each(ids, function (id) {
-            //         return findEntityClaims(entities[id], params);
-            //     }).then(() => entities);
-            // }
-            return entities;
+
+            const tasks = [];
+            if (~['all', 'property'].indexOf(options.claims)) {
+                tasks.push(findEntitiesProperties(entities, lang));
+            }
+            if (~['all', 'item'].indexOf(options.claims)) {
+                tasks.push(Promise.each(ids, function (id) {
+                    return findEntityClaims(entities[id], lang);
+                }));
+            }
+
+            return Promise.all(tasks).then(() => entities);
         });
 }
 
-// function findEntityClaims(entity: WikidataEntity, options?: GetEntitiesParamsType): Promise<WikidataEntity> {
-//     const claims = entity.claims;
+function findEntitiesProperties(entities: WikidataEntities, lang: string): Promise<any> {
+    let ids = [];
+    const paths: IIndexType<{ pid: string, value: WikidataPropertyValue, index: number }[]> = {};// id=[key:position]
+    const entitiesIds = Object.keys(entities);
+    entitiesIds.forEach(entityId => {
+        const entity = entities[entityId];
+        if (entity.claims) {
+            ids = ids.concat(Object.keys(entity.claims));
+        }
+    });
 
-//     if (!claims) {
-//         return Promise.resolve(entity);
-//     }
+    if (!ids.length) {
+        return Promise.resolve();
+    }
 
-//     const ids = [];
-//     const paths = {};// id=[key:position]
-//     Object.keys(claims).forEach(property => {
-//         claims[property].forEach((claim, index) => {
-//             const id = claim.value;
-//             if (isWikidataId(id)) {
-//                 paths[id] = paths[id] || [];
-//                 paths[id].push({ property, index });
-//                 if (ids.indexOf(id) < 0) {
-//                     ids.push(id);
-//                 }
-//             }
-//         });
-//     });
+    ids = _.uniq(ids);
 
-//     if (ids.length === 0) {
-//         return Promise.resolve(entity);
-//     }
+    console.log(ids);
 
-//     const params: GetEntitiesParamsType = {
-//         ids: ids.join('|'),
-//         languages: options && options.languages,
-//         props: 'labels|descriptions|datatype'
-//     };
+    return getEntities({
+        ids: ids.join('|'),
+        language: lang,
+        props: 'labels|descriptions|datatype'
+    }, { claims: 'none' }).then(function (properties) {
+        Object.keys(properties).forEach(propertyId => {
+            entitiesIds.forEach(entityId => {
+                const entity = entities[entityId];
+                if (entity.claims && entity.claims[propertyId]) {
+                    if (properties[propertyId].label) {
+                        entity.claims[propertyId].label = properties[propertyId].label;
+                    }
+                    if (properties[propertyId].description) {
+                        entity.claims[propertyId].description = properties[propertyId].description;
+                    }
+                }
+            });
+        });
+        return null;
+    });
+}
+
+function findEntityClaims(entity: WikidataEntity, lang: string): Promise<WikidataEntity> {
+    const claims = entity.claims;
+
+    if (!claims) {
+        return Promise.resolve(entity);
+    }
+
+    const ids = [];
+    const paths: IIndexType<{ pid: string, value: WikidataPropertyValue, index: number }[]> = {};// id=[key:position]
+    Object.keys(claims).forEach(property => {
+        claims[property].values.forEach((propertyValue, index) => {
+            if (propertyValue.datatype === 'wikibase-item') {
+                const id = propertyValue.value;
+                paths[id] = paths[id] || [];
+                paths[id].push({ pid: property, value: propertyValue, index });
+                if (ids.indexOf(id) < 0) {
+                    ids.push(id);
+                }
+            }
+        });
+    });
+
+    if (ids.length === 0) {
+        return Promise.resolve(entity);
+    }
+
+    const params: GetEntitiesParamsType = {
+        ids: ids.join('|'),
+        language: lang,
+        props: 'labels|descriptions|datatype'
+    };
 
 
-//     return getEntities(params, { claims: 'none' }).then(entities => {
-//         Object.keys(entities).forEach(id => {
-//             const item = entities[id];
-//             const pa = paths[item.id];
-//             // console.log('pa', pa);
-//             pa.forEach(pai => {
-//                 claims[pai.property][pai.index].value = item;
-//             });
-//         });
-//         return entity;
-//     });
-// }
+    return getEntities(params, { claims: 'none' }).then(entities => {
+        Object.keys(entities).forEach(id => {
+            const item = entities[id];
+            const pa = paths[item.id];
+            // console.log('pa', pa);
+            pa.forEach(pai => {
+                const val = claims[pai.pid].values[pai.index];
+                if (item.label) {
+                    val.label = item.label;
+                }
+                if (item.description) {
+                    val.description = item.description;
+                }
+            });
+        });
+        return entity;
+    });
+}

@@ -5,7 +5,7 @@ import { WikidataEntityClaims, WikidataProperty, WikidataPropertyValue } from '.
 // Expects an entity 'claims' object
 // Ex: entity.claims
 export function simplifyClaims(claims: any): WikidataEntityClaims {
-    const simpleClaims:WikidataEntityClaims = {};
+    const simpleClaims: WikidataEntityClaims = {};
     for (let id in claims) {
         let propClaims = claims[id];
         simpleClaims[id] = simplifyPropertyClaims(propClaims, id);
@@ -58,27 +58,33 @@ export function simplifyClaim(claim): WikidataPropertyValue {
             value = datavalue.value;
             break
         case 'time':
-            value = datavalue.value.time;
+            value = datavalue.value;
+            value_string = datavalue.value.time;
             break
         case 'quantity':
-            value = parseFloat(datavalue.value.amount)
+            value = datavalue.value;
+            value_string = parseFloat(datavalue.value.amount).toString();
             break
         case 'globe-coordinate':
-            value = getLatLngFromCoordinates(datavalue.value)
+            value = datavalue.value;
+            value_string = getLatLngFromCoordinates(datavalue.value).join(',');
             break
     }
 
-    const simpleQualifiers = {}
+    // const simpleQualifiers = {}
 
-    for (let qualifierProp in qualifiers) {
-        simpleQualifiers[qualifierProp] = qualifiers[qualifierProp]
-            .map(prepareQualifierClaim)
-    }
+    // for (let qualifierProp in qualifiers) {
+    //     simpleQualifiers[qualifierProp] = qualifiers[qualifierProp]
+    //         .map(prepareQualifierClaim)
+    // }
     const result = {
         datatype,
         value,
         // qualifiers: simplifyClaims(simpleQualifiers, opts)
     };
+    if (value_string) {
+        result['value_string'] = value_string;
+    }
 
     // if (Array.isArray(result) && result.length === 0 || Object.keys(result.qualifiers).length === 0) {
     //     delete result.qualifiers;
