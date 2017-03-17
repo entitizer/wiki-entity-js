@@ -1,5 +1,5 @@
 
-import { _, Promise, isWikidataId } from '../utils';
+import { _, Promise } from '../utils';
 import { WikidataEntity, WikidataEntities, WikidataPropertyValue, IIndexType, WikidataEntitiesParams } from '../types';
 import { getManyEntities } from './api';
 import { simplifyEntity } from './simplify_entity';

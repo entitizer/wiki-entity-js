@@ -4,7 +4,7 @@ import { WikiEntity, WikiEntities, IIndexType, WikidataEntities, WikiEntitiesPar
 import { getEntities as getWikidataEntities } from './wikidata';
 import { getExtracts } from './wikipedia/api';
 
-export { WikiEntities, WikiEntitiesParams }
+export * from './types';
 
 export function getEntities(params: WikiEntitiesParams): Promise<WikiEntities> {
     const lang = params.language || 'en';
