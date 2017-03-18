@@ -16,16 +16,26 @@ export function simplifyEntity(lang: string, data: any, options: SimplifyEntityO
 
     const entity: WikidataEntity = { id: data.id };
 
+    if (data.pageid) {
+        entity.pageid = data.pageid;
+    }
+
     if (options.labels !== false && data.labels) {
         entity.label = simplifyLabels(data.labels)[lang];
     }
 
     if (options.descriptions !== false && data.descriptions) {
         entity.description = simplifyDescriptions(data.descriptions)[lang];
+        if (!entity.description) {
+            delete entity.description;
+        }
     }
 
     if (options.aliases !== false && data.aliases) {
         entity.aliases = simplifyAliases(data.aliases)[lang];
+        if (!entity.aliases) {
+            delete entity.aliases;
+        }
     }
 
     if (options.sitelinks !== false && data.sitelinks) {

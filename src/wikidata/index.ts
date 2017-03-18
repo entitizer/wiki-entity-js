@@ -49,18 +49,19 @@ function findEntitiesProperties(entities: WikidataEntities, lang: string): Promi
     return getEntities({
         ids: ids.join('|'),
         language: lang,
-        props: 'labels|descriptions|datatype',
+        props: 'info|labels|descriptions|datatype',
         claims: 'none'
     }).then(function (properties) {
         Object.keys(properties).forEach(propertyId => {
             entitiesIds.forEach(entityId => {
                 const entity = entities[entityId];
                 if (entity.claims && entity.claims[propertyId]) {
-                    if (properties[propertyId].label) {
-                        entity.claims[propertyId].label = properties[propertyId].label;
-                    }
-                    if (properties[propertyId].description) {
-                        entity.claims[propertyId].description = properties[propertyId].description;
+                    if (entity.claims && entity.claims[propertyId]) {
+                        for (var prop in properties[propertyId]) {
+                            if (~['label', 'description'].indexOf(prop)) {
+                                entity.claims[propertyId][prop] = properties[propertyId][prop];
+                            }
+                        }
                     }
                 }
             });
@@ -98,7 +99,7 @@ function findEntityClaims(entity: WikidataEntity, lang: string): Promise<Wikidat
     const params: WikidataEntitiesParams = {
         ids: ids.join('|'),
         language: lang,
-        props: 'labels|descriptions|datatype',
+        props: 'info|labels|descriptions|datatype',
         claims: 'none'
     };
 
@@ -109,11 +110,10 @@ function findEntityClaims(entity: WikidataEntity, lang: string): Promise<Wikidat
             const pa = paths[item.id];
             pa.forEach(pai => {
                 const val = claims[pai.pid].values[pai.index];
-                if (item.label) {
-                    val.label = item.label;
-                }
-                if (item.description) {
-                    val.description = item.description;
+                for (var prop in item) {
+                    if (~['label', 'pageid', 'description'].indexOf(prop)) {
+                        val[prop] = item[prop];
+                    }
                 }
             });
         });

@@ -4,18 +4,18 @@ const index = require('../lib');
 const assert = require('assert');
 
 describe('entities', function () {
-    it('getEntities props:labels|descriptions', function () {
-        return index.getEntities({ language: 'en', titles: 'Chișinău|Enichioi', props: 'labels|descriptions' })
-            .then(function (result) {
-                assert.ok(result.Q21197);
-                assert.ok(result.Q2438184);
+    it('should order results by input titles', function () {
+        return index.getEntities({ language: 'en', titles: 'Chișinău|Enichioi', props: 'info|labels|descriptions' })
+            .then(function (results) {
+                assert.equal('Q21197', results[0].id);
+                assert.equal('Q2438184', results[1].id);
             });
     });
-    it('getEntities extract', function () {
-        return index.getEntities({ language: 'en', titles: 'Chișinău', props: 'labels|descriptions', extract: 2 })
-            .then(function (result) {
-                assert.ok(result.Q21197);
-                assert.ok(result.Q21197.extract);
+    it('should order results by input ids', function () {
+        return index.getEntities({ ids: 'Q2438184|Q21197', props: 'labels|descriptions' })
+            .then(function (results) {
+                assert.equal('Q2438184', results[0].id);
+                assert.equal('Q21197', results[1].id);
             });
     });
 });

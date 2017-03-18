@@ -11,7 +11,7 @@ export function getEntities(params: WikidataEntitiesParams): Promise<WikidataEnt
         action: 'wbgetentities',
         ids: getStringArrayParam(params.ids),
         titles: getStringArrayParam(params.titles),
-        props: getStringArrayParam(params.props, 'sitelinks|aliases|labels|descriptions|claims|datatype'),
+        props: getStringArrayParam(params.props, 'info|sitelinks|aliases|labels|descriptions|claims|datatype'),
         languages: getStringArrayParam(params.language, 'en'),
         // sitefilter: getStringArrayParam(params.sitefilter),
         redirects: params.redirects || 'yes',

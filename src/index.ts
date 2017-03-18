@@ -6,7 +6,7 @@ import { getExtracts } from './wikipedia/api';
 
 export * from './types';
 
-export function getEntities(params: WikiEntitiesParams): Promise<WikiEntities> {
+export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
     const lang = params.language || 'en';
 
     return getWikidataEntities(params)
@@ -31,6 +31,9 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntities> {
                         }
                     });
                 }).then(() => entities);
+                
+        }).then(function (resultEntities) {
+            return Object.keys(resultEntities).map(id => resultEntities[id]);
         });
 }
 
