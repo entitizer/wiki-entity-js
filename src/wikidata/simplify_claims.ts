@@ -59,7 +59,7 @@ export function simplifyClaim(claim): WikidataPropertyValue {
             break
         case 'time':
             value = datavalue.value;
-            value_string = datavalue.value.time;
+            value_string = stringDatetime(datavalue.value);
             break
         case 'quantity':
             value = datavalue.value;
@@ -97,3 +97,21 @@ const getLatLngFromCoordinates = (value) => [value.latitude, value.longitude]
 
 const prepareQualifierClaim = (claim) => ({ mainsnak: claim })
 const nonNull = (obj) => obj != null
+
+const stringDatetime = (value) => {
+    let date = value.time;
+    const p = value.precision;
+    if (p >= 9) { // year
+        date = date.substr(1); // remove + sign
+        if (p < 12) { // hour
+            date = date.split('T')[0];
+            if (p === 10) { // month
+                date = date.split('-').slice(0, 2).join('-');
+            } else if (p === 9) { // year
+                date = date.split('-')[0];
+            }
+        }
+    }
+
+    return date;
+}
