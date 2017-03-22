@@ -48,7 +48,8 @@ export function getManyEntities(params: WikidataEntitiesParams): Promise<Wikidat
     const countParts = keyValues.length / max + 1;
     const parts: Promise<WikidataEntities>[] = [];
 
-    for (var i = 0; i < countParts; i++) {
+    // i < 4 (max 200 items)
+    for (var i = 0; i < countParts && i < 4; i++) {
         const partParams: WikidataEntitiesParams = _.clone(params);
         partParams[keyName] = keyValues.slice(i * max, (i + 1) * max).join('|');
         if (partParams[keyName].length > 0) {

@@ -1,6 +1,6 @@
 
 import { _, Promise } from '../utils';
-import { WikidataEntity, WikidataEntities, WikidataPropertyValue, IIndexType, WikidataEntitiesParams } from '../types';
+import { WikidataEntity, WikidataEntities, WikidataPropertyValue, IIndexType, WikidataEntitiesParams, WikidataEntityClaims } from '../types';
 import { getManyEntities } from './api';
 import { simplifyEntity } from './simplify_entity';
 
@@ -17,11 +17,11 @@ export function getEntities(params: WikidataEntitiesParams)
 
             const tasks = [];
             if (~['all', 'property'].indexOf(claims)) {
-                tasks.push(findEntitiesProperties(entities, lang));
+                tasks.push(exploreEntitiesProperties(entities, lang));
             }
             if (~['all', 'item'].indexOf(claims)) {
                 tasks.push(Promise.each(ids, function (id) {
-                    return findEntityClaims(entities[id], lang);
+                    return exploreEntityClaims(entities[id].claims, { language: lang });
                 }));
             }
 
@@ -29,7 +29,7 @@ export function getEntities(params: WikidataEntitiesParams)
         });
 }
 
-function findEntitiesProperties(entities: WikidataEntities, lang: string): Promise<any> {
+function exploreEntitiesProperties(entities: WikidataEntities, lang: string): Promise<any> {
     let ids = [];
     const paths: IIndexType<{ pid: string, value: WikidataPropertyValue, index: number }[]> = {};// id=[key:position]
     const entitiesIds = Object.keys(entities);
@@ -70,11 +70,10 @@ function findEntitiesProperties(entities: WikidataEntities, lang: string): Promi
     });
 }
 
-function findEntityClaims(entity: WikidataEntity, lang: string): Promise<WikidataEntity> {
-    const claims = entity.claims;
+export function exploreEntityClaims(claims: WikidataEntityClaims, params: WikidataEntitiesParams): Promise<void> {
 
     if (!claims) {
-        return Promise.resolve(entity);
+        return Promise.resolve();
     }
 
     const ids = [];
@@ -93,15 +92,12 @@ function findEntityClaims(entity: WikidataEntity, lang: string): Promise<Wikidat
     });
 
     if (ids.length === 0) {
-        return Promise.resolve(entity);
+        return Promise.resolve();
     }
 
-    const params: WikidataEntitiesParams = {
-        ids: ids.join('|'),
-        language: lang,
-        props: 'info|labels|descriptions|datatype',
-        claims: 'none'
-    };
+    params.ids = ids.join('|');
+    params.props = params.props || 'info|labels|descriptions|datatype';
+    params.claims = params.claims || 'none';
 
 
     return getEntities(params).then(entities => {
@@ -117,6 +113,5 @@ function findEntityClaims(entity: WikidataEntity, lang: string): Promise<Wikidat
                 }
             });
         });
-        return entity;
     });
 }
