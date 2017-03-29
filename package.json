@@ -1,6 +1,6 @@
 {
   "name": "wiki-entity",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Wiki entity fetcher",
   "main": "./lib/index.js",
   "types": "./types/index.d.ts",
@@ -11,7 +11,8 @@
     "tscw": "tsc -w",
     "preversion": "npm run tsc",
     "postversion": "git push --follow-tags",
-    "prepublish": "npm run tsc"
+    "prepublish": "npm run tsc",
+    "lint": "tslint ./src/**/*.ts"
   },
   "engines": {
     "node": ">=4.0.0"
@@ -39,6 +40,7 @@
     "@types/node": "^7.0.5",
     "debug": "^2.6.3",
     "mocha": "^3.2.0",
+    "tslint": "^4.5.1",
     "typescript": "^2.2.1"
   },
   "dependencies": {
