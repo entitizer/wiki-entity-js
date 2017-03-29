@@ -30,6 +30,7 @@ Required. `ids` or `titles` require. Params properties:
 - **props** :*string* - entity props to get. Can by: `info`|`sitelinks`|`aliases`|`labels`|`descriptions`|`claims`|`datatype`;
 - **claims** :*string* - How to resolve the claims. Can be: `none`, `all`, `item`, `property`. Default: `none`. `all` resolves `item` and `property` types.
 - **extract** :*number* - Sentences in the extract. Default: `0`.
+- **types** :*boolean* | *string*[] - `true` to get entity types. Filter types by [prefixes](https://dbpedia.org/sparql?nsdecl). Example: [`dbo`, `schema`] will return only types defined by `dbpedia.org/ontology/` and `schema.org`. Default: `false`.
 
 ## WikiEntity
 
@@ -46,6 +47,7 @@ type WikiEntity = {
     aliases?: string[];
     sitelinks?: IIndexType<string>;
     claims?: IIndexType<WikidataProperty>;
+    types?: string[]
 }
 
 type WikidataProperty = {

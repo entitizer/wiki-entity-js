@@ -3,6 +3,7 @@ import { _, Promise } from '../utils';
 import { WikidataEntity, WikidataEntities, WikidataPropertyValue, IIndexType, WikidataEntitiesParams, WikidataEntityClaims } from '../types';
 import { getManyEntities } from './api';
 import { simplifyEntity } from './simplify_entity';
+export { getEntityTypes } from './get_entity_types';
 
 export function getEntities(params: WikidataEntitiesParams)
     : Promise<WikidataEntities> {

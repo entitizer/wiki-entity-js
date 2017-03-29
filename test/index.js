@@ -5,10 +5,13 @@ const assert = require('assert');
 
 describe('entities', function () {
     it('should order results by input titles', function () {
-        return index.getEntities({ language: 'en', titles: 'Chișinău|Enichioi', props: 'info|labels|descriptions' })
+        return index.getEntities({ language: 'en', titles: 'Chișinău|Enichioi', props: 'info|labels|descriptions', types: true })
             .then(function (results) {
                 assert.equal('Q21197', results[0].id);
                 assert.equal('Q2438184', results[1].id);
+                assert.ok(results[0].types);
+                assert.equal(true, results[0].types.indexOf('schema:City') > -1);
+                assert.equal(true, results[1].types.indexOf('schema:Place') > -1);
             });
     });
     it('should order results by input ids', function () {
@@ -21,7 +24,8 @@ describe('entities', function () {
     it('should parse claim time type', function () {
         return index.getEntities({ ids: 'Q218134' })
             .then(function (results) {
-                console.log(results[0].claims.P569.values);
+                assert.equal('1429', results[0].claims.P569.values[0].value_string);
+                // console.log(results[0].claims.P569.values);
                 // assert.equal('Q2438184', results[0].id);
                 // assert.equal('Q21197', results[1].id);
             });

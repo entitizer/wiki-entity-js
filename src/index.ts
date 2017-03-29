@@ -1,7 +1,7 @@
 
 import { _, Promise } from './utils';
 import { WikiEntity, WikiEntities, IIndexType, WikidataEntities, WikiEntitiesParams } from './types';
-import { getEntities as getWikidataEntities } from './wikidata';
+import { getEntities as getWikidataEntities, getEntityTypes } from './wikidata';
 import { getExtracts } from './wikipedia/api';
 
 export * from './types';
@@ -10,28 +10,45 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
     const lang = params.language || 'en';
 
     return getWikidataEntities(params)
-        .then(function (entities) {
+        .then(function (wikiDataEntities) {
+            const entities: WikiEntities = wikiDataEntities;
             // console.log('entities', entities);
             const ids = Object.keys(entities);
-            if (ids.length === 0 || !params.extract) {
+            if (ids.length === 0) {
                 return entities;
             }
 
-            // return entities;
+            const tasks = [];
 
-            const titles = getEntitiesTitles(lang, entities);
-            // console.log('titles', titles, lang);
-            const stringTitles = _.map(titles, 'title').join('|');
-            return getExtracts({ lang: lang, titles: stringTitles, sentences: params.extract })
-                .then(function (extracts) {
-                    extracts.forEach(item => {
-                        const it: IdTitleType = _.find(titles, { title: item.title });
-                        if (it) {
-                            _.set(entities, [it.id, 'extract'].join('.'), item.extract);
-                        }
-                    });
-                }).then(() => entities);
-                
+
+
+            if (params.extract) {
+                const titles = getEntitiesTitles(lang, entities);
+                // console.log('titles', titles, lang);
+                const stringTitles = _.map(titles, 'title').join('|');
+                tasks.push(getExtracts({ lang: lang, titles: stringTitles, sentences: params.extract })
+                    .then(function (extracts) {
+                        extracts.forEach(item => {
+                            const it: IdTitleType = _.find(titles, { title: item.title });
+                            if (it) {
+                                _.set(entities, [it.id, 'extract'].join('.'), item.extract);
+                            }
+                        });
+                    }));
+            }
+
+            if (params.types === true || Array.isArray(params.types)) {
+                const prefixes: string[] = Array.isArray(params.types) ? params.types : null;
+                tasks.push(Promise.map(ids, id => {
+                    return getEntityTypes(id, prefixes)
+                        .then(types => {
+                            entities[id].types = types;
+                        });
+                }));
+            }
+
+            return Promise.all(tasks).then(() => entities);
+
         }).then(function (resultEntities) {
             return Object.keys(resultEntities).map(id => resultEntities[id]);
         });

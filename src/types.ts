@@ -35,6 +35,7 @@ export type WikidataEntities = IIndexType<WikidataEntity>;
 
 export interface WikiEntity extends WikidataEntity {
     extract?: string
+    types?: string[];
 }
 
 export type WikiEntities = IIndexType<WikiEntity>;
@@ -56,4 +57,5 @@ export interface WikiEntitiesParams extends WikidataEntitiesParams {
      * Sentences count. 0 - no extract
      */
     extract?: number
+    types?: boolean | string[]
 }
