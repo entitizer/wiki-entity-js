@@ -25,8 +25,8 @@ export default function <T>(options: any): Promise<T> {
 
 	return new Promise(function (resolve, reject) {
 		request(options, function (error, response, body) {
-			if (error) {
-				return reject(error);
+			if (error || response.statusCode >= 400) {
+				return reject(error || new Error('Invalid statusCode=' + response.statusCode));
 			}
 			resolve(body);
 		});
