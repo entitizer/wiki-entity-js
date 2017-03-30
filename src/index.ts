@@ -2,7 +2,7 @@
 import { _, Promise } from './utils';
 import { WikiEntity, WikiEntities, IIndexType, WikidataEntities, WikiEntitiesParams } from './types';
 import { getEntities as getWikidataEntities, getEntityTypes } from './wikidata';
-import { getExtracts } from './wikipedia/api';
+import { getExtracts, getRedirects } from './wikipedia/api';
 
 export * from './types';
 
@@ -20,8 +20,6 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
 
             const tasks = [];
 
-
-
             if (params.extract) {
                 const titles = getEntitiesTitles(lang, entities);
                 // console.log('titles', titles, lang);
@@ -35,6 +33,17 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
                             }
                         });
                     }));
+            }
+
+            if (params.redirects) {
+                tasks.push(Promise.map(ids, id => {
+                    if (entities[id].sitelinks && entities[id].sitelinks[lang]) {
+                        return getRedirects(lang, entities[id].sitelinks[lang])
+                            .then(redirects => {
+                                entities[id].redirects = redirects;
+                            });
+                    }
+                }));
             }
 
             if (params.types === true || Array.isArray(params.types)) {

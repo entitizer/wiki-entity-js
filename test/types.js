@@ -32,8 +32,8 @@ describe('types', function () {
         return index.getEntities({ language: 'en', titles: 'Eurovision Song Contest', props: 'info|labels|descriptions', types: true })
             .then(function (results) {
                 assert.ok(results[0].types);
-                console.log(results[0].types);
-                // assert.equal(true, results[0].types.indexOf('schema:Organization') > -1);
+                // console.log(results[0].types);
+                assert.equal(true, results[0].types.indexOf('schema:Event') > -1);
             });
     });
 });

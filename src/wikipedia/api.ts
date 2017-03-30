@@ -58,6 +58,28 @@ export function getExtract(lang: string, title: string, sentences?: number): Pro
     });
 }
 
+export function getRedirects(lang: string, title: string): Promise<string[]> {
+    const qs = {
+        action: 'query',
+        generator: 'redirects',
+        titles: title,
+        grdlimit: 'max',
+        format: 'json'
+    };
+
+    return request<any>({ qs: qs, url: API_URL.replace('$lang', lang) })
+        .then(data => {
+            if (hasError(data)) {
+                return Promise.reject(getError(data));
+            }
+
+            if (data && data.query && data.query.pages) {
+                return Object.keys(data.query.pages).map(id => data.query.pages[id].title);
+            }
+            return [];
+        });
+}
+
 function getError(data: any): Error {
     return data && data.error && new Error(data.error.info || 'Wikidata Api Error') || new Error('NO error');
 }

@@ -34,8 +34,9 @@ export interface WikidataEntity extends WikidataBaseEntity {
 export type WikidataEntities = IIndexType<WikidataEntity>;
 
 export interface WikiEntity extends WikidataEntity {
-    extract?: string
+    extract?: string;
     types?: string[];
+    redirects?: string[];
 }
 
 export type WikiEntities = IIndexType<WikiEntity>;
@@ -48,7 +49,7 @@ export interface WikidataEntitiesParams {
     language?: string,
     // sites?: string[] | string,
     // sitefilter?: string[] | string,
-    redirects?: string,
+    redirect?: string,
     claims?: ParamClaimsType
 }
 
@@ -56,6 +57,7 @@ export interface WikiEntitiesParams extends WikidataEntitiesParams {
     /**
      * Sentences count. 0 - no extract
      */
-    extract?: number
-    types?: boolean | string[]
+    extract?: number,
+    types?: boolean | string[],
+    redirects?: boolean
 }
