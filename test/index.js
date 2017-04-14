@@ -30,4 +30,10 @@ describe('entities', function () {
                 // assert.equal('Q21197', results[1].id);
             });
     });
+    it('should not throw any error', function () {
+        return index.getEntities({ language: 'ro', titles: 'Italia|Spania', types: true })
+            .then(function (results) {
+                assert.equal('Q38', results[0].id);
+            });
+    });
 });

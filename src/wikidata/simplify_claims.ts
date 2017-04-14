@@ -36,7 +36,7 @@ export function simplifyClaim(claim): WikidataPropertyValue {
 
     const { datatype, datavalue } = mainsnak
     // known case: snaktype set to `somevalue`
-    if (datavalue === null) return null
+    if (datavalue === null || datavalue === undefined) return null
 
     let value = null
     let value_string;
