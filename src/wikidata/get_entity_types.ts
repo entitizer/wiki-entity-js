@@ -1,5 +1,5 @@
 
-import { _, Promise } from '../utils';
+import { _, Bluebird } from '../utils';
 import request from '../request';
 
 const PREFIXES_MAP = {
@@ -15,7 +15,7 @@ const PREFIXES_MAP = {
 const PREFIXES = Object.keys(PREFIXES_MAP).map(key => PREFIXES_MAP[key]);
 const PREFIXES_REG = new RegExp('^(' + Object.keys(PREFIXES_MAP).join('|') + ')');
 
-export function getEntityTypes(id: string, prefixes?: string[]): Promise<string[]> {
+export function getEntityTypes(id: string, prefixes?: string[]): Bluebird<string[]> {
     if (!prefixes || !prefixes.length) {
         prefixes = PREFIXES;
     }
@@ -35,7 +35,7 @@ function parseTypes(types: any[]): string[] {
     return types.map(item => item.type.value);
 }
 
-function dbpediaWikidataTypes(id: string): Promise<any[]> {
+function dbpediaWikidataTypes(id: string): Bluebird<any[]> {
     const query = `PREFIX dbpedia-wikidata: <http://wikidata.dbpedia.org/resource/>
 SELECT ?type
 WHERE {
@@ -45,7 +45,7 @@ dbpedia-wikidata:${id} rdf:type ?type
         .then(data => data.results && data.results.bindings);
 }
 
-function dbpediaTypes(name: string): Promise<any[]> {
+function dbpediaTypes(name: string): Bluebird<any[]> {
     const query = `PREFIX dbr: <http://dbpedia.org/resource/>
 SELECT ?type
 WHERE {

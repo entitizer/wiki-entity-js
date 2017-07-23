@@ -1,11 +1,11 @@
 
-import { _, Promise } from '../utils';
+import { _, Bluebird } from '../utils';
 import request from '../request';
 import { WikidataEntity, WikidataEntities, WikidataEntitiesParams } from '../types';
 
 const API_URL = 'https://www.wikidata.org/w/api.php';
 
-export function getEntities(params: WikidataEntitiesParams): Promise<WikidataEntities> {
+export function getEntities(params: WikidataEntitiesParams): Bluebird<WikidataEntities> {
 
     const qs = {
         action: 'wbgetentities',
@@ -28,17 +28,17 @@ export function getEntities(params: WikidataEntitiesParams): Promise<WikidataEnt
     return request<any>({ qs: qs, url: API_URL })
         .then(data => {
             if (hasError(data)) {
-                return Promise.reject(getError(data));
+                return Bluebird.reject(getError(data));
             }
             return data && data.entities || {};
         });
 }
 
-export function getManyEntities(params: WikidataEntitiesParams): Promise<WikidataEntities> {
+export function getManyEntities(params: WikidataEntitiesParams): Bluebird<WikidataEntities> {
     try {
         validateParams(params);
     } catch (e) {
-        return Promise.reject(e);
+        return Bluebird.reject(e);
     }
     const keyName = (!!params.ids) ? 'ids' : 'titles';
     const keyValues = params[keyName].split('|');
@@ -46,7 +46,7 @@ export function getManyEntities(params: WikidataEntitiesParams): Promise<Wikidat
     const max = 50;
 
     const countParts = keyValues.length / max + 1;
-    const parts: Promise<WikidataEntities>[] = [];
+    const parts: Bluebird<WikidataEntities>[] = [];
 
     // i < 4 (max 200 items)
     for (var i = 0; i < countParts && i < 4; i++) {
@@ -57,9 +57,9 @@ export function getManyEntities(params: WikidataEntitiesParams): Promise<Wikidat
         }
     }
 
-    return Promise.all<WikidataEntities>(parts).then(function (results) {
+    return Bluebird.all(parts).then(function (results) {
         if (results.length === 0) {
-            return results;
+            return null;
         }
 
         if (results.length > 1) {

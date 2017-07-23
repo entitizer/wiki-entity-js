@@ -1,5 +1,5 @@
 
-export const _ = require('lodash');
-import * as BluebirdPromise from 'bluebird';
+import * as _ from 'lodash';
+import * as Bluebird from 'bluebird';
 
-export const Promise = BluebirdPromise;
+export { Bluebird, _ }

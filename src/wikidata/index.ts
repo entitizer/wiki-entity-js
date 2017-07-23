@@ -1,12 +1,12 @@
 
-import { _, Promise } from '../utils';
+import { _, Bluebird } from '../utils';
 import { WikidataEntity, WikidataEntities, WikidataPropertyValue, IIndexType, WikidataEntitiesParams, WikidataEntityClaims } from '../types';
 import { getManyEntities } from './api';
 import { simplifyEntity } from './simplify_entity';
 export { getEntityTypes } from './get_entity_types';
 
 export function getEntities(params: WikidataEntitiesParams)
-    : Promise<WikidataEntities> {
+    : Bluebird<WikidataEntities> {
 
     const claims = params.claims || 'none';
     const lang = params.language || 'en';
@@ -21,16 +21,16 @@ export function getEntities(params: WikidataEntitiesParams)
                 tasks.push(exploreEntitiesProperties(entities, lang));
             }
             if (~['all', 'item'].indexOf(claims)) {
-                tasks.push(Promise.each(ids, function (id) {
+                tasks.push(Bluebird.each(ids, function (id) {
                     return exploreEntityClaims(entities[id].claims, { language: lang });
                 }));
             }
 
-            return Promise.all(tasks).then(() => entities);
+            return Bluebird.all(tasks).then(() => entities);
         });
 }
 
-function exploreEntitiesProperties(entities: WikidataEntities, lang: string): Promise<any> {
+function exploreEntitiesProperties(entities: WikidataEntities, lang: string): Bluebird<any> {
     let ids = [];
     const paths: IIndexType<{ pid: string, value: WikidataPropertyValue, index: number }[]> = {};// id=[key:position]
     const entitiesIds = Object.keys(entities);
@@ -42,7 +42,7 @@ function exploreEntitiesProperties(entities: WikidataEntities, lang: string): Pr
     });
 
     if (!ids.length) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     ids = _.uniq(ids);
@@ -71,10 +71,10 @@ function exploreEntitiesProperties(entities: WikidataEntities, lang: string): Pr
     });
 }
 
-export function exploreEntityClaims(claims: WikidataEntityClaims, params: WikidataEntitiesParams): Promise<void> {
+export function exploreEntityClaims(claims: WikidataEntityClaims, params: WikidataEntitiesParams): Bluebird<void> {
 
     if (!claims) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     const ids = [];
@@ -93,7 +93,7 @@ export function exploreEntityClaims(claims: WikidataEntityClaims, params: Wikida
     });
 
     if (ids.length === 0) {
-        return Promise.resolve();
+        return Bluebird.resolve();
     }
 
     params.ids = ids.join('|');

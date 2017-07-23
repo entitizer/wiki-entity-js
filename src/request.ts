@@ -2,9 +2,9 @@
 
 const request = require('request');
 
-import { _, Promise } from './utils';
+import { _, Bluebird } from './utils';
 
-export default function <T>(options: any): Promise<T> {
+export default function <T>(options: any): Bluebird<T> {
 	options = _.defaults(options, {
 		method: 'GET',
 		json: true,
@@ -23,7 +23,7 @@ export default function <T>(options: any): Promise<T> {
 		}
 	}
 
-	return new Promise(function (resolve, reject) {
+	return new Bluebird<T>(function (resolve, reject) {
 		request(options, function (error, response, body) {
 			if (error || response.statusCode >= 400) {
 				return reject(error || new Error('Invalid statusCode=' + response.statusCode));

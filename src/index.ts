@@ -1,12 +1,12 @@
 
-import { _, Promise } from './utils';
+import { _, Bluebird } from './utils';
 import { WikiEntity, WikiEntities, IIndexType, WikidataEntities, WikiEntitiesParams } from './types';
 import { getEntities as getWikidataEntities, getEntityTypes } from './wikidata';
 import { getExtracts, getRedirects } from './wikipedia/api';
 
 export * from './types';
 
-export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
+export function getEntities(params: WikiEntitiesParams): Bluebird<WikiEntity[]> {
     const lang = params.language || 'en';
 
     return getWikidataEntities(params)
@@ -36,7 +36,7 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
             }
 
             if (params.redirects) {
-                tasks.push(Promise.map(ids, id => {
+                tasks.push(Bluebird.map(ids, id => {
                     if (entities[id].sitelinks && entities[id].sitelinks[lang]) {
                         return getRedirects(lang, entities[id].sitelinks[lang])
                             .then(redirects => {
@@ -48,7 +48,7 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
 
             if (params.types === true || Array.isArray(params.types)) {
                 const prefixes: string[] = Array.isArray(params.types) ? params.types : null;
-                tasks.push(Promise.map(ids, id => {
+                tasks.push(Bluebird.map(ids, id => {
                     return getEntityTypes(id, prefixes)
                         .then(types => {
                             entities[id].types = types;
@@ -56,7 +56,7 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
                 }));
             }
 
-            return Promise.all(tasks).then(() => entities);
+            return Bluebird.all(tasks).then(() => entities);
 
         }).then(function (resultEntities) {
             return Object.keys(resultEntities).map(id => resultEntities[id]);

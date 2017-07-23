@@ -1,5 +1,5 @@
 
-import { Promise } from '../utils';
+import { Bluebird } from '../utils';
 import request from '../request';
 
 const API_URL = 'https://$lang.wikipedia.org/w/api.php';
@@ -16,7 +16,7 @@ export type ExtractsParamsType = {
     sentences?: number
 }
 
-export function getExtracts(params: ExtractsParamsType): Promise<ExtractType[]> {
+export function getExtracts(params: ExtractsParamsType): Bluebird<ExtractType[]> {
 
     const qs = {
         action: 'query',
@@ -35,7 +35,7 @@ export function getExtracts(params: ExtractsParamsType): Promise<ExtractType[]> 
     return request<any>({ qs: qs, url: API_URL.replace('$lang', params.lang) })
         .then(data => {
             if (hasError(data)) {
-                return Promise.reject(getError(data));
+                return Bluebird.reject(getError(data));
             }
             // console.log(data);
             if (data && data.query && data.query.pages) {
@@ -45,7 +45,7 @@ export function getExtracts(params: ExtractsParamsType): Promise<ExtractType[]> 
         });
 }
 
-export function getExtract(lang: string, title: string, sentences?: number): Promise<ExtractType> {
+export function getExtract(lang: string, title: string, sentences?: number): Bluebird<ExtractType> {
     return getExtracts({
         lang: lang,
         titles: title,
@@ -58,7 +58,7 @@ export function getExtract(lang: string, title: string, sentences?: number): Pro
     });
 }
 
-export function getRedirects(lang: string, title: string): Promise<string[]> {
+export function getRedirects(lang: string, title: string): Bluebird<string[]> {
     const qs = {
         action: 'query',
         generator: 'redirects',
@@ -70,7 +70,7 @@ export function getRedirects(lang: string, title: string): Promise<string[]> {
     return request<any>({ qs: qs, url: API_URL.replace('$lang', lang) })
         .then(data => {
             if (hasError(data)) {
-                return Promise.reject(getError(data));
+                return Bluebird.reject(getError(data));
             }
 
             if (data && data.query && data.query.pages) {
