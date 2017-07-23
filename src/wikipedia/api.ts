@@ -1,5 +1,5 @@
 
-import { Bluebird } from '../utils';
+import { Bluebird, StringPlainObject, _ } from '../utils';
 import request from '../request';
 
 const API_URL = 'https://$lang.wikipedia.org/w/api.php';
@@ -14,6 +14,82 @@ export type ExtractsParamsType = {
     lang: string,
     titles: string,
     sentences?: number
+}
+
+export type ApiResult = {
+    pageid: number
+    title: string
+    extract?: string
+    categories?: string[]
+    redirects?: string[]
+}
+
+export class Api {
+    constructor(private options: StringPlainObject = { action: 'query', format: 'json' }) {
+        this.options.action = this.options.action || 'query';
+        this.options.format = 'json';
+    }
+
+    query(lang: string, options?: StringPlainObject): Bluebird<ApiResult[]> {
+        if (options) {
+            this.options = _.assign(this.options, options);
+        }
+
+        // console.log(this.options)
+
+        return request<any>({ qs: this.options, url: API_URL.replace('$lang', lang) })
+            .then(data => {
+                if (hasError(data)) {
+                    return Bluebird.reject(getError(data));
+                }
+                // console.log(data);
+                if (data && data.query && data.query.pages) {
+                    // console.log(JSON.stringify(data));
+                    return Object.keys(data.query.pages)
+                        .map(id => data.query.pages[id])
+                        .map(data => {
+                            const item: ApiResult = { pageid: data['pageid'], title: data['title'] };
+
+                            if (data['categories']) {
+                                item.categories = data['categories'].map(item => item.title);
+                            }
+
+                            if (data['redirects']) {
+                                item.redirects = data['redirects'].map(item => item.title);
+                            }
+
+                            return item;
+                        });
+                }
+                return [];
+            });
+    }
+
+    redirects() {
+        this.options['rdlimit'] = 'max';
+        this.addField('prop', 'redirects');
+        return this;
+    }
+
+    categories() {
+        this.addField('prop', 'categories');
+        return this;
+    }
+
+    extract(sentences: number = 3) {
+        this.options['exsentences'] = sentences.toString();
+        this.options['explaintext'] = 'true';
+        this.addField('prop', 'extracts');
+        return this;
+    }
+
+    private addField(name: string, value: string) {
+        const vals = (this.options[name] || '').split('|').filter(item => !!item);
+        vals.push(value);
+        this.options[name] = vals.join('|');
+
+        return this;
+    }
 }
 
 export function getExtracts(params: ExtractsParamsType): Bluebird<ExtractType[]> {

@@ -32,6 +32,7 @@ Required. `ids` or `titles` require. Params properties:
 - **extract** :*number* - Sentences in the extract. Default: `0`. Works only if `sitelinks` is present.
 - **types** :*boolean* | *string*[] - `true` to get entity types. Filter types by [prefixes](https://dbpedia.org/sparql?nsdecl). Example: [`dbo`, `schema`] will return only types defined by `dbpedia.org/ontology/` and `schema.org`. Default: `false`.
 - **redirects** : *boolean* - get wikipedia redirects titles. Default: `false`. Works only if `sitelinks` is present.
+- **categories** : *boolean* - get wikipedia article categories. Default: `false`. Works only if `sitelinks` is present.
 
 ## WikiEntity
 
@@ -50,6 +51,7 @@ type WikiEntity = {
     claims?: IIndexType<WikidataProperty>;
     types?: string[];
     redirects?: string[];
+    categories?: string[];
 }
 
 type WikidataProperty = {

@@ -37,6 +37,7 @@
   "homepage": "https://github.com/entitizer/wiki-entity#readme",
   "devDependencies": {
     "@types/bluebird": "^3.5.0",
+    "@types/lodash": "^4.14.71",
     "@types/node": "^7.0.5",
     "debug": "^2.6.3",
     "mocha": "^3.2.0",

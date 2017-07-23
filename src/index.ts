@@ -2,7 +2,7 @@
 import { _, Bluebird } from './utils';
 import { WikiEntity, WikiEntities, IIndexType, WikidataEntities, WikiEntitiesParams } from './types';
 import { getEntities as getWikidataEntities, getEntityTypes } from './wikidata';
-import { getExtracts, getRedirects } from './wikipedia/api';
+import { Api as WikipediaApi } from './wikipedia/api';
 
 export * from './types';
 
@@ -18,32 +18,47 @@ export function getEntities(params: WikiEntitiesParams): Bluebird<WikiEntity[]> 
                 return entities;
             }
 
+            // console.log('ids', ids);
+
             const tasks = [];
 
+            const wikiApi = new WikipediaApi();
+            let callWikiApi = false;
+
             if (params.extract) {
-                const titles = getEntitiesTitles(lang, entities);
-                // console.log('titles', titles, lang);
-                const stringTitles = _.map(titles, 'title').join('|');
-                tasks.push(getExtracts({ lang: lang, titles: stringTitles, sentences: params.extract })
-                    .then(function (extracts) {
-                        extracts.forEach(item => {
-                            const it: IdTitleType = _.find(titles, { title: item.title });
-                            if (it) {
-                                _.set(entities, [it.id, 'extract'].join('.'), item.extract);
-                            }
-                        });
-                    }));
+                callWikiApi = true;
+                wikiApi.extract(params.extract);
+            }
+            if (params.redirects) {
+                callWikiApi = true;
+                wikiApi.redirects();
+            }
+            if (params.categories) {
+                callWikiApi = true;
+                wikiApi.categories();
             }
 
-            if (params.redirects) {
-                tasks.push(Bluebird.map(ids, id => {
-                    if (entities[id].sitelinks && entities[id].sitelinks[lang]) {
-                        return getRedirects(lang, entities[id].sitelinks[lang])
-                            .then(redirects => {
-                                entities[id].redirects = redirects;
-                            });
+            if (callWikiApi && entities[ids[0]].sitelinks) {
+                const listEntities = ids.map(id => entities[id]);
+                const titleIds = ids.reduce((prev, id) => {
+                    if (entities[id].sitelinks[lang]) {
+                        prev[entities[id].sitelinks[lang]] = id;
                     }
-                }));
+                    return prev;
+                }, {});
+                tasks.push(wikiApi.query(lang, { titles: ids.map(id => entities[id].sitelinks[lang]).filter(item => !!item).join('|') })
+                    .then(apiResults => apiResults.forEach(result => {
+                        const entity = entities[titleIds[result.title]];
+                        if (params.extract) {
+                            entity.extract = result.extract;
+                        }
+                        if (params.redirects) {
+                            entity.redirects = result.redirects;
+                        }
+                        if (params.categories) {
+                            entity.categories = result.categories;
+                        }
+                    })));
             }
 
             if (params.types === true || Array.isArray(params.types)) {
