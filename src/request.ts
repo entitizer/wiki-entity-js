@@ -1,6 +1,7 @@
 'use strict';
 
 const request = require('request');
+const debug = require('debug')('wiki-entity');
 
 import { _, Bluebird } from './utils';
 
@@ -22,6 +23,8 @@ export default function <T>(options: any): Bluebird<T> {
 			}
 		}
 	}
+
+	debug('request ' + (options.uri || options.url), options.qs);
 
 	return new Bluebird<T>(function (resolve, reject) {
 		request(options, function (error, response, body) {

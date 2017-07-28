@@ -58,6 +58,10 @@ export class Api {
                                 item.redirects = data['redirects'].map(item => item.title);
                             }
 
+                            if (data['extract']) {
+                                item.extract = data['extract'];
+                            }
+
                             return item;
                         });
                 }

@@ -39,7 +39,7 @@
     "@types/bluebird": "^3.5.0",
     "@types/lodash": "^4.14.71",
     "@types/node": "^7.0.5",
-    "debug": "^2.6.3",
+    "debug": "^2.6.8",
     "mocha": "^3.2.0",
     "tslint": "^4.5.1",
     "typescript": "^2.2.1"
