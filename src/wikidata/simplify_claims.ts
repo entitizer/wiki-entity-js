@@ -93,7 +93,7 @@ export function simplifyClaim(claim): WikidataPropertyValue {
     return result;
 }
 
-const getLatLngFromCoordinates = (value) => [value.latitude, value.longitude]
+const getLatLngFromCoordinates = (value: { latitude: number, longitude: number }) => [value.latitude.toFixed(4).replace(/[0]+$/,'').replace(/\.$/,''), value.longitude.toFixed(4).replace(/[0]+$/,'').replace(/\.$/,'')]
 
 const prepareQualifierClaim = (claim) => ({ mainsnak: claim })
 const nonNull = (obj) => obj != null
