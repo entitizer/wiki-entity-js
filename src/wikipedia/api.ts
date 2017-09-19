@@ -1,5 +1,5 @@
 
-import { Bluebird, StringPlainObject, _ } from '../utils';
+import { StringPlainObject } from '../utils';
 import request from '../request';
 
 const API_URL = 'https://$lang.wikipedia.org/w/api.php';
@@ -30,9 +30,9 @@ export class Api {
         this.options.format = 'json';
     }
 
-    query(lang: string, options?: StringPlainObject): Bluebird<ApiResult[]> {
+    query(lang: string, options?: StringPlainObject): Promise<ApiResult[]> {
         if (options) {
-            this.options = _.assign(this.options, options);
+            this.options = Object.assign({}, this.options, options);
         }
 
         // console.log(this.options)
@@ -40,12 +40,12 @@ export class Api {
         return request<any>({ qs: this.options, url: API_URL.replace('$lang', lang) })
             .then(data => {
                 if (hasError(data)) {
-                    return Bluebird.reject(getError(data));
+                    return Promise.reject(getError(data));
                 }
                 // console.log(data);
                 if (data && data.query && data.query.pages) {
                     // console.log(JSON.stringify(data));
-                    return Object.keys(data.query.pages)
+                    return Promise.resolve(Object.keys(data.query.pages)
                         .map(id => data.query.pages[id])
                         .map(data => {
                             const item: ApiResult = { pageid: data['pageid'], title: data['title'] };
@@ -63,9 +63,9 @@ export class Api {
                             }
 
                             return item;
-                        });
+                        }));
                 }
-                return [];
+                return Promise.resolve([]);
             });
     }
 
@@ -96,7 +96,7 @@ export class Api {
     }
 }
 
-export function getExtracts(params: ExtractsParamsType): Bluebird<ExtractType[]> {
+export function getExtracts(params: ExtractsParamsType): Promise<ExtractType[]> {
 
     const qs = {
         action: 'query',
@@ -115,17 +115,17 @@ export function getExtracts(params: ExtractsParamsType): Bluebird<ExtractType[]>
     return request<any>({ qs: qs, url: API_URL.replace('$lang', params.lang) })
         .then(data => {
             if (hasError(data)) {
-                return Bluebird.reject(getError(data));
+                return Promise.reject(getError(data));
             }
             // console.log(data);
             if (data && data.query && data.query.pages) {
                 return Object.keys(data.query.pages).map(id => data.query.pages[id]);
             }
-            return [];
+            return Promise.resolve([]);
         });
 }
 
-export function getExtract(lang: string, title: string, sentences?: number): Bluebird<ExtractType> {
+export function getExtract(lang: string, title: string, sentences?: number): Promise<ExtractType> {
     return getExtracts({
         lang: lang,
         titles: title,
@@ -138,7 +138,7 @@ export function getExtract(lang: string, title: string, sentences?: number): Blu
     });
 }
 
-export function getRedirects(lang: string, title: string): Bluebird<string[]> {
+export function getRedirects(lang: string, title: string): Promise<string[]> {
     const qs = {
         action: 'query',
         generator: 'redirects',
@@ -150,13 +150,13 @@ export function getRedirects(lang: string, title: string): Bluebird<string[]> {
     return request<any>({ qs: qs, url: API_URL.replace('$lang', lang) })
         .then(data => {
             if (hasError(data)) {
-                return Bluebird.reject(getError(data));
+                return Promise.reject(getError(data));
             }
 
             if (data && data.query && data.query.pages) {
                 return Object.keys(data.query.pages).map(id => data.query.pages[id].title);
             }
-            return [];
+            return Promise.resolve([]);
         });
 }
 

@@ -1,11 +1,10 @@
 
-import { _, Bluebird } from '../utils';
 import request from '../request';
 import { WikidataEntity, WikidataEntities, WikidataEntitiesParams } from '../types';
 
 const API_URL = 'https://www.wikidata.org/w/api.php';
 
-export function getEntities(params: WikidataEntitiesParams): Bluebird<WikidataEntities> {
+export function getEntities(params: WikidataEntitiesParams): Promise<WikidataEntities> {
 
     const qs = {
         action: 'wbgetentities',
@@ -28,17 +27,17 @@ export function getEntities(params: WikidataEntitiesParams): Bluebird<WikidataEn
     return request<any>({ qs: qs, url: API_URL })
         .then(data => {
             if (hasError(data)) {
-                return Bluebird.reject(getError(data));
+                return Promise.reject(getError(data));
             }
             return data && data.entities || {};
         });
 }
 
-export function getManyEntities(params: WikidataEntitiesParams): Bluebird<WikidataEntities> {
+export function getManyEntities(params: WikidataEntitiesParams): Promise<WikidataEntities> {
     try {
         validateParams(params);
     } catch (e) {
-        return Bluebird.reject(e);
+        return Promise.reject(e);
     }
     const keyName = (!!params.ids) ? 'ids' : 'titles';
     const keyValues = params[keyName].split('|');
@@ -46,25 +45,25 @@ export function getManyEntities(params: WikidataEntitiesParams): Bluebird<Wikida
     const max = 50;
 
     const countParts = keyValues.length / max + 1;
-    const parts: Bluebird<WikidataEntities>[] = [];
+    const parts: Promise<WikidataEntities>[] = [];
 
     // i < 4 (max 200 items)
     for (var i = 0; i < countParts && i < 4; i++) {
-        const partParams: WikidataEntitiesParams = _.clone(params);
+        const partParams: WikidataEntitiesParams = Object.assign({}, params);
         partParams[keyName] = keyValues.slice(i * max, (i + 1) * max).join('|');
         if (partParams[keyName].length > 0) {
             parts.push(getEntities(partParams));
         }
     }
 
-    return Bluebird.all(parts).then(function (results) {
+    return Promise.all(parts).then(function (results) {
         if (results.length === 0) {
             return null;
         }
 
         if (results.length > 1) {
             for (var i = 1; i < results.length; i++) {
-                _.assign(results[0], results[i]);
+                Object.assign(results[0], results[i]);
             }
         }
 

@@ -1,12 +1,13 @@
 
-import { _, Bluebird } from '../utils';
 import { WikidataEntity, WikidataEntities, WikidataPropertyValue, IIndexType, WikidataEntitiesParams, WikidataEntityClaims } from '../types';
 import { getManyEntities } from './api';
 import { simplifyEntity } from './simplify_entity';
+import { eachSeries, uniq } from '../utils';
 export { getEntityTypes } from './get_entity_types';
 
+
 export function getEntities(params: WikidataEntitiesParams)
-    : Bluebird<WikidataEntities> {
+    : Promise<WikidataEntities> {
 
     const claims = params.claims || 'none';
     const lang = params.language || 'en';
@@ -21,16 +22,14 @@ export function getEntities(params: WikidataEntitiesParams)
                 tasks.push(exploreEntitiesProperties(entities, lang));
             }
             if (~['all', 'item'].indexOf(claims)) {
-                tasks.push(Bluebird.each(ids, function (id) {
-                    return exploreEntityClaims(entities[id].claims, { language: lang });
-                }));
+                tasks.push(eachSeries(ids, (id) => exploreEntityClaims(entities[id].claims, { language: lang })));
             }
 
-            return Bluebird.all(tasks).then(() => entities);
+            return Promise.all(tasks).then(() => entities);
         });
 }
 
-function exploreEntitiesProperties(entities: WikidataEntities, lang: string): Bluebird<any> {
+function exploreEntitiesProperties(entities: WikidataEntities, lang: string): Promise<any> {
     let ids = [];
     const paths: IIndexType<{ pid: string, value: WikidataPropertyValue, index: number }[]> = {};// id=[key:position]
     const entitiesIds = Object.keys(entities);
@@ -42,10 +41,10 @@ function exploreEntitiesProperties(entities: WikidataEntities, lang: string): Bl
     });
 
     if (!ids.length) {
-        return Bluebird.resolve();
+        return Promise.resolve();
     }
 
-    ids = _.uniq(ids);
+    ids = uniq(ids);
 
     return getEntities({
         ids: ids.join('|'),
@@ -71,10 +70,10 @@ function exploreEntitiesProperties(entities: WikidataEntities, lang: string): Bl
     });
 }
 
-export function exploreEntityClaims(claims: WikidataEntityClaims, params: WikidataEntitiesParams): Bluebird<void> {
+export function exploreEntityClaims(claims: WikidataEntityClaims, params: WikidataEntitiesParams): Promise<void> {
 
     if (!claims) {
-        return Bluebird.resolve();
+        return Promise.resolve();
     }
 
     const ids = [];
@@ -93,7 +92,7 @@ export function exploreEntityClaims(claims: WikidataEntityClaims, params: Wikida
     });
 
     if (ids.length === 0) {
-        return Bluebird.resolve();
+        return Promise.resolve();
     }
 
     params.ids = ids.join('|');

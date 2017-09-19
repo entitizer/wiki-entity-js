@@ -3,10 +3,8 @@
 const request = require('request');
 const debug = require('debug')('wiki-entity');
 
-import { _, Bluebird } from './utils';
-
-export default function <T>(options: any): Bluebird<T> {
-	options = _.defaults(options, {
+export default function <T>(options: any): Promise<T> {
+	options = Object.assign({
 		method: 'GET',
 		json: true,
 		encoding: 'utf8',
@@ -14,7 +12,7 @@ export default function <T>(options: any): Bluebird<T> {
 			'User-Agent': 'entity-finder'
 		},
 		timeout: 5 * 1000
-	});
+	}, options);
 
 	if (options.qs) {
 		for (var prop in options.qs) {
@@ -26,7 +24,7 @@ export default function <T>(options: any): Bluebird<T> {
 
 	debug('request ' + (options.uri || options.url), options.qs);
 
-	return new Bluebird<T>(function (resolve, reject) {
+	return new Promise<T>(function (resolve, reject) {
 		request(options, function (error, response, body) {
 			if (error || response.statusCode >= 400) {
 				return reject(error || new Error('Invalid statusCode=' + response.statusCode));

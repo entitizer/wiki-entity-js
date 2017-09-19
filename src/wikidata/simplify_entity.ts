@@ -2,7 +2,6 @@
 
 import { simplifyClaims } from './simplify_claims';
 import { WikidataEntity } from '../types';
-import { _ } from '../utils';
 
 export type SimplifyEntityOptionsType = {
     labels?: boolean;
@@ -87,7 +86,7 @@ function getManyLangValue(data: any): { [index: string]: string[] } {
     if (data) {
         const result = {};
 
-        Object.keys(data).forEach(lang => { result[lang] = _.map(data[lang], 'value'); });
+        Object.keys(data).forEach(lang => { result[lang] = data[lang].map(item => item.value); });
 
         return result;
     }
