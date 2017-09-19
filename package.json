@@ -1,6 +1,6 @@
 {
   "name": "wiki-entity",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Wiki entity fetcher",
   "main": "./lib/index.js",
   "types": "./types/index.d.ts",
@@ -36,8 +36,6 @@
   },
   "homepage": "https://github.com/entitizer/wiki-entity#readme",
   "devDependencies": {
-    "@types/bluebird": "^3.5.0",
-    "@types/lodash": "^4.14.71",
     "@types/node": "^7.0.5",
     "debug": "^2.6.8",
     "mocha": "^3.2.0",
@@ -45,8 +43,6 @@
     "typescript": "^2.4.2"
   },
   "dependencies": {
-    "bluebird": "^3.5.0",
-    "lodash": "^4.17.4",
     "request": "^2.81.0"
   }
 }
