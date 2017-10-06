@@ -62,7 +62,7 @@ export function simplifyLabels(data: any): { [index: string]: string } {
 
 export function simplifySitelinks(data: any): { [index: string]: string } {
     if (data) {
-        const result = {};
+        const result: any = {};
 
         Object.keys(data).forEach(site => { result[site.replace(/wiki$/, '')] = data[site].title; });
 
@@ -73,7 +73,7 @@ export function simplifySitelinks(data: any): { [index: string]: string } {
 
 function getLangValue(data: any): { [index: string]: string } {
     if (data) {
-        const result = {};
+        const result: any = {};
 
         Object.keys(data).forEach(lang => { result[lang] = data[lang].value; });
 
@@ -84,9 +84,9 @@ function getLangValue(data: any): { [index: string]: string } {
 
 function getManyLangValue(data: any): { [index: string]: string[] } {
     if (data) {
-        const result = {};
+        const result: any = {};
 
-        Object.keys(data).forEach(lang => { result[lang] = data[lang].map(item => item.value); });
+        Object.keys(data).forEach(lang => { result[lang] = data[lang].map((item: any) => item.value); });
 
         return result;
     }

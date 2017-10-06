@@ -1,7 +1,8 @@
 
 import request from '../request';
+import { StringPlainObject } from '../types';
 
-const PREFIXES_MAP = {
+const PREFIXES_MAP: StringPlainObject = {
     'http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#': 'dul',
     'http://dbpedia.org/ontology/': 'dbo',
     'http://www.w3.org/2002/07/owl#': 'owl',

@@ -1,5 +1,5 @@
 
-import { WikidataEntity, WikidataEntities, WikidataPropertyValue, IIndexType, WikidataEntitiesParams, WikidataEntityClaims } from '../types';
+import { WikidataEntity, WikidataEntities, WikidataPropertyValue, PlainObject, WikidataEntitiesParams, WikidataEntityClaims, AnyPlainObject } from '../types';
 import { getManyEntities } from './api';
 import { simplifyEntity } from './simplify_entity';
 import { eachSeries, uniq } from '../utils';
@@ -30,8 +30,8 @@ export function getEntities(params: WikidataEntitiesParams)
 }
 
 function exploreEntitiesProperties(entities: WikidataEntities, lang: string): Promise<any> {
-    let ids = [];
-    const paths: IIndexType<{ pid: string, value: WikidataPropertyValue, index: number }[]> = {};// id=[key:position]
+    let ids: string[] = [];
+    const paths: PlainObject<{ pid: string, value: WikidataPropertyValue, index: number }[]> = {};// id=[key:position]
     const entitiesIds = Object.keys(entities);
     entitiesIds.forEach(entityId => {
         const entity = entities[entityId];
@@ -76,8 +76,8 @@ export function exploreEntityClaims(claims: WikidataEntityClaims, params: Wikida
         return Promise.resolve();
     }
 
-    const ids = [];
-    const paths: IIndexType<{ pid: string, value: WikidataPropertyValue, index: number }[]> = {};// id=[key:position]
+    const ids: string[] = [];
+    const paths: PlainObject<{ pid: string, value: WikidataPropertyValue, index: number }[]> = {};// id=[key:position]
     Object.keys(claims).forEach(property => {
         claims[property].values.forEach((propertyValue, index) => {
             if (propertyValue.datatype === 'wikibase-item') {
@@ -105,7 +105,7 @@ export function exploreEntityClaims(claims: WikidataEntityClaims, params: Wikida
             const item = entities[id];
             const pa = paths[item.id];
             pa.forEach(pai => {
-                const val = claims[pai.pid].values[pai.index];
+                const val: AnyPlainObject = claims[pai.pid].values[pai.index];
                 for (var prop in item) {
                     if (~['label', 'pageid', 'description'].indexOf(prop)) {
                         val[prop] = item[prop];

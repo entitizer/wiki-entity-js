@@ -1,7 +1,10 @@
 
-export type IIndexType<T> = {
+export type PlainObject<T> = {
     [index: string]: T
 }
+
+export type AnyPlainObject = PlainObject<any>
+export type StringPlainObject = PlainObject<string>
 
 export interface WikidataPropertyValue {
     datatype: string;
@@ -16,22 +19,23 @@ export interface WikidataBaseEntity {
     id: string;
     label?: string;
     description?: string;
+    [index: string]: any
 }
 
 export interface WikidataProperty extends WikidataBaseEntity {
     values: WikidataPropertyValue[];
 }
 
-export type WikidataEntityClaims = IIndexType<WikidataProperty>;
+export type WikidataEntityClaims = PlainObject<WikidataProperty>;
 
 export interface WikidataEntity extends WikidataBaseEntity {
     pageid?: number;
     aliases?: string[];
-    sitelinks?: IIndexType<string>;
+    sitelinks?: PlainObject<string>;
     claims?: WikidataEntityClaims;
 }
 
-export type WikidataEntities = IIndexType<WikidataEntity>;
+export type WikidataEntities = PlainObject<WikidataEntity>;
 
 export interface WikiEntity extends WikidataEntity {
     extract?: string;
@@ -40,7 +44,7 @@ export interface WikiEntity extends WikidataEntity {
     categories?: string[];
 }
 
-export type WikiEntities = IIndexType<WikiEntity>;
+export type WikiEntities = PlainObject<WikiEntity>;
 
 export type ParamClaimsType = 'none' | 'all' | 'item' | 'property';
 export interface WikidataEntitiesParams {

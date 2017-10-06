@@ -1,5 +1,5 @@
 
-import { WikiEntity, WikiEntities, IIndexType, WikidataEntities, WikiEntitiesParams } from './types';
+import { WikiEntity, WikiEntities, PlainObject, WikidataEntities, WikiEntitiesParams } from './types';
 import { getEntities as getWikidataEntities, getEntityTypes } from './wikidata';
 import { Api as WikipediaApi } from './wikipedia/api';
 import { eachSeries } from './utils';
@@ -22,7 +22,7 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
                 return entities;
             }
 
-            const tasks = [];
+            const tasks: any[] = [];
 
             const wikiApi = new WikipediaApi();
             let callWikiApi = false;
@@ -42,7 +42,7 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
 
             if (callWikiApi && entities[ids[0]].sitelinks) {
                 const listEntities = ids.map(id => entities[id]);
-                const titleIds = ids.reduce((prev, id) => {
+                const titleIds = ids.reduce((prev: any, id) => {
                     if (entities[id].sitelinks[lang]) {
                         prev[entities[id].sitelinks[lang]] = id;
                     }

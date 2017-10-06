@@ -51,11 +51,11 @@ export class Api {
                             const item: ApiResult = { pageid: data['pageid'], title: data['title'] };
 
                             if (data['categories']) {
-                                item.categories = data['categories'].map(item => item.title);
+                                item.categories = data['categories'].map((item: any) => item.title);
                             }
 
                             if (data['redirects']) {
-                                item.redirects = data['redirects'].map(item => item.title);
+                                item.redirects = data['redirects'].map((item: any) => item.title);
                             }
 
                             if (data['extract']) {

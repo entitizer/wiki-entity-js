@@ -26,7 +26,7 @@ export function simplifyPropertyClaims(propClaims: any[], id: string): WikidataP
 
 // Expects a single claim object
 // Ex: entity.claims.P369[0]
-export function simplifyClaim(claim): WikidataPropertyValue {
+export function simplifyClaim(claim: any): WikidataPropertyValue {
     // tries to replace wikidata deep claim object by a simple value
     // e.g. a string, an entity Qid or an epoch time number
     const { mainsnak, qualifiers } = claim
@@ -77,7 +77,7 @@ export function simplifyClaim(claim): WikidataPropertyValue {
     //     simpleQualifiers[qualifierProp] = qualifiers[qualifierProp]
     //         .map(prepareQualifierClaim)
     // }
-    const result = {
+    const result: any = {
         datatype,
         value,
         // qualifiers: simplifyClaims(simpleQualifiers, opts)
@@ -93,12 +93,12 @@ export function simplifyClaim(claim): WikidataPropertyValue {
     return result;
 }
 
-const getLatLngFromCoordinates = (value: { latitude: number, longitude: number }) => [value.latitude.toFixed(4).replace(/[0]+$/,'').replace(/\.$/,''), value.longitude.toFixed(4).replace(/[0]+$/,'').replace(/\.$/,'')]
+const getLatLngFromCoordinates = (value: { latitude: number, longitude: number }) => [value.latitude.toFixed(4).replace(/[0]+$/, '').replace(/\.$/, ''), value.longitude.toFixed(4).replace(/[0]+$/, '').replace(/\.$/, '')]
 
-const prepareQualifierClaim = (claim) => ({ mainsnak: claim })
-const nonNull = (obj) => obj != null
+const prepareQualifierClaim = (claim: any) => ({ mainsnak: claim })
+const nonNull = (obj: any) => obj != null
 
-const stringDatetime = (value) => {
+const stringDatetime = (value: any) => {
     let date = value.time;
     const p = value.precision;
     if (p >= 9) { // year

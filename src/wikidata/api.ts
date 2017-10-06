@@ -15,7 +15,7 @@ export function getEntities(params: WikidataEntitiesParams): Promise<WikidataEnt
         // sitefilter: getStringArrayParam(params.sitefilter),
         redirects: params.redirect || 'yes',
         format: 'json',
-        sites: null
+        sites: ''
     };
 
     if (params.titles) {
