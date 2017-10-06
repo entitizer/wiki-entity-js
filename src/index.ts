@@ -4,6 +4,8 @@ import { getEntities as getWikidataEntities, getEntityTypes } from './wikidata';
 import { Api as WikipediaApi } from './wikipedia/api';
 import { eachSeries } from './utils';
 
+export { simplifyEntity } from './wikidata/simplify_entity';
+
 export * from './types';
 
 export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
@@ -12,13 +14,12 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
     return getWikidataEntities(params)
         .then(function (wikiDataEntities) {
             const entities: WikiEntities = wikiDataEntities;
-            // console.log('entities', entities);
+
             const ids = Object.keys(entities);
+
             if (ids.length === 0) {
                 return entities;
             }
-
-            // console.log('ids', ids);
 
             const tasks = [];
 
@@ -68,7 +69,8 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
 
             return Promise.all(tasks).then(() => entities);
 
-        }).then(function (resultEntities) {
+        })
+        .then(function (resultEntities) {
             return Object.keys(resultEntities).map(id => resultEntities[id]);
         });
 }
