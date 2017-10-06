@@ -9,6 +9,9 @@ export function simplifyClaims(claims: any): WikidataEntityClaims {
     for (let id in claims) {
         let propClaims = claims[id];
         simpleClaims[id] = simplifyPropertyClaims(propClaims, id);
+        if (simpleClaims[id].values.length === 0) {
+            delete simpleClaims[id];
+        }
     }
     return simpleClaims;
 }
@@ -18,7 +21,7 @@ export function simplifyClaims(claims: any): WikidataEntityClaims {
 export function simplifyPropertyClaims(propClaims: any[], id: string): WikidataProperty {
     const prop: WikidataProperty = {
         id,
-        values: propClaims.map((claim) => simplifyClaim(claim)).filter(nonNull)
+        values: propClaims.map((claim) => simplifyClaim(claim)).filter((item) => item && (item.value_string || item.value !== null))
     };
 
     return prop;
@@ -84,6 +87,10 @@ export function simplifyClaim(claim: any): WikidataPropertyValue {
     };
     if (value_string) {
         result['value_string'] = value_string;
+    } else {
+        if (value === null) {
+
+        }
     }
 
     // if (Array.isArray(result) && result.length === 0 || Object.keys(result.qualifiers).length === 0) {
