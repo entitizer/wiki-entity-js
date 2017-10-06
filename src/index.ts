@@ -5,6 +5,7 @@ import { Api as WikipediaApi } from './wikipedia/api';
 import { eachSeries } from './utils';
 
 export { simplifyEntity } from './wikidata/simplify_entity';
+export { getEntityTypes, WikipediaApi }
 
 export * from './types';
 
