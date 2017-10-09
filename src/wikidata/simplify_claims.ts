@@ -39,7 +39,7 @@ export function simplifyClaim(claim: any): WikidataPropertyValue {
 
     const { datatype, datavalue } = mainsnak
     // known case: snaktype set to `somevalue`
-    if (datavalue === null || datavalue === undefined) return null
+    if (datavalue === null || datavalue === undefined || datavalue.value === null) return null
 
     let value = null
     let value_string;
@@ -87,10 +87,6 @@ export function simplifyClaim(claim: any): WikidataPropertyValue {
     };
     if (value_string) {
         result['value_string'] = value_string;
-    } else {
-        if (value === null) {
-
-        }
     }
 
     // if (Array.isArray(result) && result.length === 0 || Object.keys(result.qualifiers).length === 0) {
