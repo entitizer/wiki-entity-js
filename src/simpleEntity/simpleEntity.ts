@@ -29,12 +29,6 @@ export type SimpleEntity = {
     type?: SimpleEntityType
     types?: string[]
     countryCode?: string
-    rank?: number
     data?: SimpleEntityData
     categories?: string[]
-
-    /**
-     * Permanent redirect to entity id
-     */
-    redirectId?: string
 }

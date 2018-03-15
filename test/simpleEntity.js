@@ -41,9 +41,6 @@ describe('SimpleEntity', function () {
                 assert.equal('Q18548924', entity.wikiDataId);
                 assert.equal('Adrian Ursu (cântăreț)', entity.wikiPageTitle);
                 assert.equal('H', entity.type);
-                assert.equal(true, entity.rank > 0);
-
-                // console.log(entity.name, 'rank', entity.rank);
 
                 // console.log(entity.toJSON());
             });

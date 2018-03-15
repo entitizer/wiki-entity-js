@@ -36,14 +36,11 @@ export function convertToSimpleEntity(wikiEntity: WikiEntity, lang: string, opti
         }
     }
 
-    entity.rank = 1;
     if (wikiEntity.sitelinks) {
         entity.wikiPageTitle = wikiEntity.sitelinks[lang];
-        entity.rank += (Object.keys(wikiEntity.sitelinks).length * 5);
     }
 
     // entity.aliases = createAliases(wikiEntity);
-    entity.rank += (wikiEntity.aliases || []).length;
     entity.categories = createCategories(wikiEntity);
 
     if (wikiEntity.claims) {
@@ -53,11 +50,7 @@ export function convertToSimpleEntity(wikiEntity: WikiEntity, lang: string, opti
         }
 
         entity.countryCode = getEntityCountryCode(wikiEntity);
-
-        entity.rank += ids.length;
     }
-
-    entity.rank = Math.round(entity.rank);
 
     return entity;
 }
