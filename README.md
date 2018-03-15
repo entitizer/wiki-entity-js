@@ -34,6 +34,10 @@ Required. `ids` or `titles` require. Params properties:
 - **redirects** : *boolean* - get wikipedia redirects titles. Default: `false`. Works only if `sitelinks` is present.
 - **categories** : *boolean* - get wikipedia article categories. Default: `false`. Works only if `sitelinks` is present.
 
+### convertToSimpleEntity(wikiEntity: WikiEntity): SimpleEntity
+
+Convert a complex WikiEntity object to SimpleEntity object.
+
 ## WikiEntity
 
 `WikiEntity` is a simple version of an item returned by Wikidata API. It also may include some extra properties from Wikipadia API.
@@ -72,6 +76,39 @@ type WikidataPropertyValue = {
 
 type IIndexType<T> = {
     [index: string]: T
+}
+
+```
+
+## SimpleEntity
+
+```ts
+
+export enum SimpleEntityType {
+    EVENT = 'E',
+    ORG = 'O',
+    PERSON = 'H',
+    PLACE = 'P',
+    PRODUCT = 'R',
+}
+
+export type SimpleEntityData = { [prop: string]: string[] }
+
+export type SimpleEntity = {
+    id?: string
+    lang?: string
+    wikiDataId?: string
+    name?: string
+    abbr?: string
+    description?: string
+    about?: string
+    wikiPageId?: number
+    wikiPageTitle?: string
+    type?: SimpleEntityType
+    types?: string[]
+    countryCode?: string
+    data?: SimpleEntityData
+    categories?: string[]
 }
 
 ```

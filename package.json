@@ -1,12 +1,12 @@
 {
   "name": "wiki-entity",
-  "version": "0.2.6",
+  "version": "0.3.0",
   "description": "Wiki entity fetcher",
   "main": "./lib/index.js",
   "types": "./types/index.d.ts",
   "scripts": {
     "pretest": "npm run tsc",
-    "test": "mocha -t 5000",
+    "test": "mocha -t 8000",
     "tsc": "tsc",
     "tscw": "tsc -w",
     "preversion": "npm run tsc",
