@@ -76,6 +76,8 @@ export class Api {
     }
 
     categories() {
+        this.options['cllimit'] = 'max';
+        this.options['clshow'] = '!hidden';
         this.addField('prop', 'categories');
         return this;
     }
