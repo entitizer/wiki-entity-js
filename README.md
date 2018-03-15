@@ -95,7 +95,6 @@ export enum SimpleEntityType {
 export type SimpleEntityData = { [prop: string]: string[] }
 
 export type SimpleEntity = {
-    id?: string
     lang?: string
     wikiDataId?: string
     name?: string

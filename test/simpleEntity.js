@@ -176,7 +176,7 @@ describe('SimpleEntity', function () {
                 // console.log(entities[0].categories);
                 assert.equal(1, entities.length);
                 const entity = fromWikiEntity(entities[0], lang);
-                console.log(entity)
+                // console.log(entity)
                 assert.equal('Scotland', entity.name);
                 assert.equal('P', entity.type);
                 assert.ok(entities[0].categories.length);
