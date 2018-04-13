@@ -103,7 +103,7 @@ export function exploreEntityClaims(claims: WikidataEntityClaims, params: Wikida
     return getEntities(params).then(entities => {
         Object.keys(entities).forEach(id => {
             const item = entities[id];
-            const pa = paths[item.id];
+            const pa = paths[item.id] || [];
             pa.forEach(pai => {
                 const val: AnyPlainObject = claims[pai.pid].values[pai.index];
                 for (var prop in item) {
