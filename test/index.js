@@ -37,4 +37,10 @@ describe('entities', function () {
                 assert.equal('Q38', results[0].id);
             });
     });
+    it('should get null result', function () {
+        return index.getEntities({ language: 'ru', titles: 'Российская Социалистическая Федеративная Советская Республика (1917—1922)|РСФСР (значения)', props: 'info|sitelinks|aliases|labels|descriptions|claims|datatype', types: true })
+            .then(function (results) {
+                assert.equal(results[0], null);
+            });
+    });
 });

@@ -12,3 +12,7 @@ export function eachSeries<T>(arr: any[], iteratorFn: (item: any) => Promise<T>)
 export function uniq<T>(items: T[]) {
     return items.filter((value, index, self) => self.indexOf(value) === index);
 }
+
+export function isValidWikiId(id: string) {
+    return /^Q\d+$/.test(id);
+}

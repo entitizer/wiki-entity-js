@@ -1,6 +1,7 @@
 
 import request from '../request';
 import { WikidataEntity, WikidataEntities, WikidataEntitiesParams } from '../types';
+import { isValidWikiId } from '../utils';
 
 const API_URL = 'https://www.wikidata.org/w/api.php';
 
@@ -29,7 +30,13 @@ export function getEntities(params: WikidataEntitiesParams): Promise<WikidataEnt
             if (hasError(data)) {
                 return Promise.reject(getError(data));
             }
-            return data && data.entities || {};
+            const entities = data && data.entities || {};
+            for (let id of Object.keys(entities)) {
+                if (!isValidWikiId(id)) {
+                    entities[id] = null;
+                }
+            }
+            return entities;
         });
 }
 

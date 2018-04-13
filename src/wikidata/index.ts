@@ -2,7 +2,7 @@
 import { WikidataEntity, WikidataEntities, WikidataPropertyValue, PlainObject, WikidataEntitiesParams, WikidataEntityClaims, AnyPlainObject } from '../types';
 import { getManyEntities } from './api';
 import { simplifyEntity } from './simplify_entity';
-import { eachSeries, uniq } from '../utils';
+import { eachSeries, uniq, isValidWikiId } from '../utils';
 export { getEntityTypes } from './get_entity_types';
 
 
@@ -14,7 +14,7 @@ export function getEntities(params: WikidataEntitiesParams)
 
     return getManyEntities(params)
         .then(function (entities) {
-            const ids = Object.keys(entities);
+            const ids = Object.keys(entities).filter(id => isValidWikiId(id));
             ids.forEach(id => { entities[id] = simplifyEntity(lang, entities[id]) });
 
             const tasks = [];

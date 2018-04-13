@@ -2,7 +2,7 @@
 import { WikiEntity, WikiEntities, PlainObject, WikidataEntities, WikiEntitiesParams } from './types';
 import { getEntities as getWikidataEntities, getEntityTypes } from './wikidata';
 import { Api as WikipediaApi } from './wikipedia/api';
-import { eachSeries } from './utils';
+import { eachSeries, isValidWikiId } from './utils';
 
 export { simplifyEntity } from './wikidata/simplify_entity';
 export { getEntityTypes, WikipediaApi }
@@ -17,7 +17,7 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
         .then(function (wikiDataEntities) {
             const entities: WikiEntities = wikiDataEntities;
 
-            const ids = Object.keys(entities);
+            const ids = Object.keys(entities).filter(id => isValidWikiId(id));
 
             if (ids.length === 0) {
                 return entities;
