@@ -37,6 +37,7 @@
   "homepage": "https://github.com/entitizer/wiki-entity#readme",
   "devDependencies": {
     "@types/node": "^7.0.5",
+    "bluebird": "^3.5.1",
     "debug": "^2.6.8",
     "mocha": "^3.2.0",
     "tslint": "^4.5.1",

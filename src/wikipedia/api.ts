@@ -37,7 +37,7 @@ export class Api {
 
         // console.log(this.options)
 
-        return request<any>({ qs: this.options, url: API_URL.replace('$lang', lang) })
+        return request<any>({ qs: this.options, url: API_URL.replace('$lang', lang), timeout: 10 * 1000 })
             .then(data => {
                 if (hasError(data)) {
                     return Promise.reject(getError(data));

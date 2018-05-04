@@ -4,6 +4,16 @@ import { SimpleEntityType } from './simpleEntity';
 import { WikiEntity } from '../types';
 
 const TYPES_MAP: PlainObject<SimpleEntityType> = {
+    'dbo:FictionalCharacter': SimpleEntityType.WORK,
+    'wikidata:Q95074': SimpleEntityType.WORK,
+    // 'dbo:Work': SimpleEntityType.WORK,
+    'dbo:WrittenWork': SimpleEntityType.WORK,
+    // 'schema:CreativeWork': SimpleEntityType.WORK,
+    'dbo:Book': SimpleEntityType.WORK,
+    // 'wikidata:Q386724': SimpleEntityType.WORK,
+    'wikidata:Q571': SimpleEntityType.WORK,
+    // 'dbo:Newspaper': SimpleEntityType.WORK,
+
     'dbo:PopulatedPlace': SimpleEntityType.PLACE,
     'dbo:Place': SimpleEntityType.PLACE,
     'schema:Place': SimpleEntityType.PLACE,
@@ -27,6 +37,9 @@ const TYPES_MAP: PlainObject<SimpleEntityType> = {
     'dul:Event': SimpleEntityType.EVENT,
     'schema:Event': SimpleEntityType.EVENT,
     'dbo:Event': SimpleEntityType.EVENT,
+
+    'dbo:Software': SimpleEntityType.PRODUCT,
+    'wikidata:Q7397': SimpleEntityType.PRODUCT,
 };
 
 // const TypesKeys = Object.keys(TYPES_MAP);

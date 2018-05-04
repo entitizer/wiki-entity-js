@@ -25,7 +25,7 @@ export function getEntities(params: WikidataEntitiesParams): Promise<WikidataEnt
         delete qs.sites;
     }
 
-    return request<any>({ qs: qs, url: API_URL })
+    return request<any>({ qs: qs, url: API_URL, timeout: 10 * 1000 })
         .then(data => {
             if (hasError(data)) {
                 return Promise.reject(getError(data));

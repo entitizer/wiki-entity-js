@@ -41,7 +41,7 @@ SELECT ?type
 WHERE {
 dbpedia-wikidata:${id} rdf:type ?type
 }`;
-    return request<any>({ url: 'http://wikidata.dbpedia.org/sparql', qs: { query: query } })
+    return request<any>({ url: 'http://wikidata.dbpedia.org/sparql', qs: { query: query }, timeout: 10 * 1000 })
         .then(data => data.results && data.results.bindings);
 }
 
@@ -51,6 +51,6 @@ SELECT ?type
 WHERE {
 dbr:${name.replace(/\s+/, ' ')} rdf:type ?type
 }`;
-    return request<any>({ url: 'http://dbpedia.org/sparql', qs: { query: query } })
+    return request<any>({ url: 'http://dbpedia.org/sparql', qs: { query: query }, timeout: 10 * 1000 })
         .then(data => data.results && data.results.bindings);
 }

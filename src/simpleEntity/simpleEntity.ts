@@ -4,6 +4,7 @@ export enum SimpleEntityType {
     PERSON = 'H',
     PLACE = 'P',
     PRODUCT = 'R',
+    WORK = 'W',
 }
 
 export const SIMPLE_ENTITY_TYPES = [
@@ -11,7 +12,8 @@ export const SIMPLE_ENTITY_TYPES = [
     SimpleEntityType.PERSON,
     SimpleEntityType.PLACE,
     SimpleEntityType.ORG,
-    SimpleEntityType.PRODUCT
+    SimpleEntityType.WORK,
+    SimpleEntityType.PRODUCT,
 ]
 
 export type SimpleEntityData = { [prop: string]: string[] }

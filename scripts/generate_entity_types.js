@@ -6,8 +6,8 @@ const Promise = require('bluebird');
 const fs = require('fs');
 const path = require('path');
 
-// process (Q3249551)
-const INVALID_IDS = ['Q3249551']
+// process (Q3249551), varietal (Q958314), ocupation (Q12737077), position (Q4164871), role (Q214339)
+const INVALID_IDS = ['Q3249551', 'Q958314', 'Q12737077', 'Q4164871', 'Q214339'];
 
 class QueryData {
     constructor() {
@@ -98,11 +98,12 @@ const DATA_MAP = {
     E: { list: ['Q1656682'], deep: 3 },
     // Persons: Human
     H: { list: ['Q5'], deep: 3 },
+    // Works: //work=product (Q386724), intellectual work (Q15621286), //creative work (Q17537576), fictitious entity (Q14897293), fictional character (Q95074), mythical character (Q4271324), //publication (Q732577), award (Q618779)
+    W: { list: ['Q15621286', 'Q14897293', 'Q95074', 'Q4271324', 'Q618779'], deep: 3 },
     // Organizations: Organization (Q43229), TV chanel(Q2001305), radio chanel (Q28114677)
     O: { list: ['Q43229', 'Q2001305', 'Q28114677'], deep: 4 },
     // PLACE: Location (Q17334923), political teritory entity (Q1048835), administrative territorial entity (Q56061), place of worship (Q1370598), natural geographic object(Q35145263), landform(Q271669), venue(Q17350442), region (Q82794)
     P: { list: ['Q17334923', 'Q1048835', 'Q56061', 'Q1370598', 'Q35145263', 'Q271669', 'Q1076486', 'Q82794'], deep: 4 },
-    // Works: work (Q386724), intellectual work (Q15621286), creative work (Q17537576), fictitious entity (Q14897293), fictional character (Q95074), mythical character (Q4271324), publication (Q732577)
     // Products: product (Q2424752), brand (Q431289), model (Q17444171), award (Q15229207), service on internet(Q1668024)
     R: { list: ['Q2424752', 'Q431289', 'Q17444171', 'Q1668024'], deep: 4 }
 };

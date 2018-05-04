@@ -74,7 +74,7 @@ describe('SimpleEntity', function () {
                 // human
                 assert.equal('Q5', entity.data.P31[0]);
                 // birth date
-                assert.equal('1424', entity.data.P569[0]);
+                assert.equal(entity.data.P569[0].length, 4);
                 // console.log(entity.countryCode)
                 // has english wiki title
                 // assert.ok(!entity.countryCode);
