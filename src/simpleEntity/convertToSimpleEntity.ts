@@ -49,7 +49,7 @@ export function convertToSimpleEntity(wikiEntity: WikiEntity, lang: string, opti
             entity.data = getEntityData(wikiEntity);
         }
 
-        entity.countryCode = getEntityCountryCode(wikiEntity);
+        entity.countryCodes = getEntityCountryCode(wikiEntity);
     }
 
     return entity;

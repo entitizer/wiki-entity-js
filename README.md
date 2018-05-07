@@ -90,6 +90,7 @@ export enum SimpleEntityType {
     PERSON = 'H',
     PLACE = 'P',
     PRODUCT = 'R',
+    WORK = 'W',
 }
 
 export type SimpleEntityData = { [prop: string]: string[] }
@@ -105,7 +106,7 @@ export type SimpleEntity = {
     wikiPageTitle?: string
     type?: SimpleEntityType
     types?: string[]
-    countryCode?: string
+    countryCodes?: string[]
     data?: SimpleEntityData
     categories?: string[]
 }

@@ -15,7 +15,7 @@ describe('SimpleEntity', function () {
             .then(function (entities) {
                 assert.equal(1, entities.length);
                 const cc2 = getEntityCC2(entities[0]);
-                assert.equal(cc2, 'MD');
+                assert.deepEqual(cc2, ['md']);
             });
     });
     it('fromWikiEntity en:simple', function () {
@@ -56,7 +56,7 @@ describe('SimpleEntity', function () {
                 assert.equal('H', entity.type);
                 assert.equal('Q5', entity.data.P31[0]);
                 assert.equal('1879-03-14', entity.data.P569[0]);
-                assert.equal('CH', entity.countryCode);
+                assert.equal(entity.countryCodes.indexOf('ch') > -1, true);
 
                 // console.log(entity.name, 'rank', entity.rank);
 
@@ -93,7 +93,7 @@ describe('SimpleEntity', function () {
                 assert.equal('iPhone 5', entity.name);
                 // product
                 assert.equal('R', entity.type);
-                assert.ok(!entity.countryCode);
+                assert.ok(!entity.countryCodes);
 
                 // console.log(entity.name, 'rank', entity.rank);
 
@@ -109,7 +109,7 @@ describe('SimpleEntity', function () {
                 assert.equal('Chișinău', entity.name);
                 // Location
                 assert.equal('P', entity.type);
-                assert.equal('MD', entity.countryCode);
+                assert.deepEqual(entity.countryCodes, ['md']);
 
                 // console.log(entity.name, 'rank', entity.rank);
 
@@ -126,7 +126,7 @@ describe('SimpleEntity', function () {
                 assert.equal('Facebook Inc.', entity.name);
                 // Organisation
                 assert.equal('O', entity.type);
-                assert.equal('US', entity.countryCode);
+                assert.equal(entity.countryCodes.indexOf('us') > -1, true);
 
                 // console.log(entity.name, 'rank', entity.rank);
 
@@ -143,7 +143,7 @@ describe('SimpleEntity', function () {
                 assert.equal('UEFA Euro 2016', entity.name);
                 // Event
                 assert.equal('E', entity.type);
-                assert.equal('FR', entity.countryCode);
+                assert.deepEqual(entity.countryCodes, ['fr']);
 
                 // console.log(entity.name, 'rank', entity.rank);
 
@@ -161,7 +161,7 @@ describe('SimpleEntity', function () {
                 assert.equal('Windows 7', entity.name);
                 // Product
                 assert.equal('R', entity.type);
-                assert.ok(!entity.countryCode);
+                assert.ok(!entity.countryCodes);
 
                 // console.log(entity.name, 'rank', entity.rank);
 

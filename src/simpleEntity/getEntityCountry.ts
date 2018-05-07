@@ -1,24 +1,23 @@
 import { WikiEntity, WikidataProperty } from "../types";
 
-const countries = require('../../data/countries.json');
+const countries: { [id: string]: { id: string, cc2: string } } = require('../../data/countries.json');
 
 // const TypesKeys = Object.keys(TYPES_MAP);
 
-export function getEntityCountryCode(wikiEntity: WikiEntity): string {
+export function getEntityCountryCode(wikiEntity: WikiEntity): string[] {
     if (!wikiEntity) {
         return null;
     }
 
     const countryIds = getEntityCountryIds(wikiEntity);
-
-    for (var i = 0; i < countryIds.length; i++) {
-        const id = countryIds[i];
+    const list: string[] = []
+    for (let id of countryIds) {
         if (countries[id]) {
-            return countries[id].cc2;
+            list.push(countries[id].cc2.toLowerCase());
         }
     }
 
-    return null;
+    return list.length ? list : null;
 }
 
 function getEntityCountryIds(wikiEntity: WikiEntity): string[] {
