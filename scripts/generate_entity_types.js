@@ -102,8 +102,8 @@ const DATA_MAP = {
     W: { list: ['Q15621286', 'Q14897293', 'Q95074', 'Q4271324', 'Q618779'], deep: 3 },
     // Organizations: Organization (Q43229), TV chanel(Q2001305), radio chanel (Q28114677)
     O: { list: ['Q43229', 'Q2001305', 'Q28114677'], deep: 4 },
-    // PLACE: Location (Q17334923), political teritory entity (Q1048835), administrative territorial entity (Q56061), place of worship (Q1370598), natural geographic object(Q35145263), landform(Q271669), venue(Q17350442), region (Q82794), public space (Q294440)
-    P: { list: ['Q17334923', 'Q1048835', 'Q56061', 'Q1370598', 'Q35145263', 'Q271669', 'Q1076486', 'Q82794', 'Q294440'], deep: 4 },
+    // PLACE: Location (Q17334923), political teritory entity (Q1048835), administrative territorial entity (Q56061), place of worship (Q1370598), natural geographic object(Q35145263), landform(Q271669), venue(Q17350442), region (Q82794), public space (Q294440), building (Q41176)
+    P: { list: ['Q17334923', 'Q1048835', 'Q56061', 'Q1370598', 'Q35145263', 'Q271669', 'Q1076486', 'Q82794', 'Q294440', 'Q41176'], deep: 4 },
     // Products: product (Q2424752), brand (Q431289), model (Q17444171), award (Q15229207), service on internet(Q1668024)
     R: { list: ['Q2424752', 'Q431289', 'Q17444171', 'Q1668024'], deep: 4 }
 };
@@ -158,7 +158,7 @@ function addResults() {
 
     const DATA = {
         // Locations: Location (Q17334923), political teritory entity (Q1048835), administrative territorial entity (Q56061), place of worship (Q1370598), natural geographic object(Q35145263), landform(Q271669), venue(Q17350442), region (Q82794)
-        P: { list: ['Q294440'], deep: 2 },
+        P: { list: ['Q41176'], deep: 4 },
     };
     var props = {}
     Object.keys(DATA).forEach(function (key) {
@@ -187,24 +187,24 @@ function saveResult(result) {
     return Promise.resolve();
 }
 
-// return addResults()
-//     .then(function () {
-//         console.log('OK');
-//     })
-//     .catch(function (error) {
-//         console.error(error);
-//     });
-
-function run() {
-    return buildResult().then(saveResult);
-}
-
-run()
+return addResults()
     .then(function () {
         console.log('OK');
     })
     .catch(function (error) {
         console.error(error);
     });
+
+function run() {
+    return buildResult().then(saveResult);
+}
+
+// run()
+//     .then(function () {
+//         console.log('OK');
+//     })
+//     .catch(function (error) {
+//         console.error(error);
+//     });
 
 

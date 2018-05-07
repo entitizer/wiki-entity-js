@@ -219,4 +219,26 @@ describe('SimpleEntity', function () {
                 assert.equal('O', entity.type); // org
             });
     });
+    it('Guvernul Republicii Moldova', function () {
+        const lang = 'ro';
+        return wikiEntity.getEntities({ language: lang, titles: 'Guvernul Republicii Moldova', claims: 'item', types: true, categories: true })
+            .then(function (entities) {
+                // console.log(entities[0].categories);
+                assert.equal(1, entities.length);
+                const entity = fromWikiEntity(entities[0], lang);
+                assert.equal('Guvernul Republicii Moldova', entity.name);
+                assert.equal('O', entity.type); // org
+            });
+    });
+    it('Casa Albă - building', function () {
+        const lang = 'ro';
+        return wikiEntity.getEntities({ language: lang, titles: 'Casa Albă', claims: 'item', types: true, categories: true })
+            .then(function (entities) {
+                // console.log(entities[0].categories);
+                assert.equal(1, entities.length);
+                const entity = fromWikiEntity(entities[0], lang);
+                assert.equal('Casa Albă', entity.name);
+                assert.equal('P', entity.type); //place
+            });
+    });
 });
