@@ -182,4 +182,41 @@ describe('SimpleEntity', function () {
                 assert.ok(entities[0].categories.length);
             });
     });
+
+    it('Instagram', function () {
+        const lang = 'ro';
+        return wikiEntity.getEntities({ language: lang, ids: 'Q209330', claims: 'item', types: true, categories: true })
+            .then(function (entities) {
+                // console.log(entities[0].categories);
+                assert.equal(1, entities.length);
+                const entity = fromWikiEntity(entities[0], lang);
+                assert.equal('Instagram', entity.name);
+                assert.equal('R', entity.type); // product
+            });
+    });
+
+    it('Piața Marii Adunări Naționale', function () {
+        const lang = 'ro';
+        return wikiEntity.getEntities({ language: lang, titles: 'Piața Marii Adunări Naționale', claims: 'item', types: true, categories: true })
+            .then(function (entities) {
+                // console.log(entities[0].categories);
+                assert.equal(1, entities.length);
+                const entity = fromWikiEntity(entities[0], lang);
+                // console.log(entity)
+                assert.equal('Piața Marii Adunări Naționale', entity.name);
+                assert.equal('P', entity.type); // place
+            });
+    });
+    it('Ziarul de Gardă', function () {
+        const lang = 'ro';
+        return wikiEntity.getEntities({ language: lang, titles: 'Ziarul de Gardă', claims: 'item', types: true, categories: true })
+            .then(function (entities) {
+                // console.log(entities[0].categories);
+                assert.equal(1, entities.length);
+                const entity = fromWikiEntity(entities[0], lang);
+                // console.log(entity)
+                assert.equal('Ziarul de Gardă', entity.name);
+                assert.equal('O', entity.type); // org
+            });
+    });
 });

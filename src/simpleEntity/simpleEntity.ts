@@ -12,8 +12,8 @@ export const SIMPLE_ENTITY_TYPES = [
     SimpleEntityType.PERSON,
     SimpleEntityType.PLACE,
     SimpleEntityType.ORG,
-    SimpleEntityType.WORK,
     SimpleEntityType.PRODUCT,
+    SimpleEntityType.WORK,
 ]
 
 export type SimpleEntityData = { [prop: string]: string[] }

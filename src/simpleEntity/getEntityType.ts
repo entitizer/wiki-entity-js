@@ -7,7 +7,7 @@ const TYPES_MAP: PlainObject<SimpleEntityType> = {
     'dbo:FictionalCharacter': SimpleEntityType.WORK,
     'wikidata:Q95074': SimpleEntityType.WORK,
     // 'dbo:Work': SimpleEntityType.WORK,
-    'dbo:WrittenWork': SimpleEntityType.WORK,
+    // 'dbo:WrittenWork': SimpleEntityType.WORK,
     // 'schema:CreativeWork': SimpleEntityType.WORK,
     'dbo:Book': SimpleEntityType.WORK,
     // 'wikidata:Q386724': SimpleEntityType.WORK,
