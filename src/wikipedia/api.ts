@@ -12,7 +12,7 @@ export type ExtractType = {
 
 export type ExtractsParamsType = {
     lang: string,
-    titles: string,
+    titles: string[],
     sentences?: number
 }
 
@@ -102,7 +102,7 @@ export function getExtracts(params: ExtractsParamsType): Promise<ExtractType[]> 
 
     const qs = {
         action: 'query',
-        titles: getStringArrayParam(params.titles),
+        titles: params.titles && params.titles.join('|'),
         exsentences: params.sentences || 3,
         prop: 'extracts',
         explaintext: true,
@@ -130,7 +130,7 @@ export function getExtracts(params: ExtractsParamsType): Promise<ExtractType[]> 
 export function getExtract(lang: string, title: string, sentences?: number): Promise<ExtractType> {
     return getExtracts({
         lang: lang,
-        titles: title,
+        titles: [title],
         sentences: sentences
     }).then(function (extracts) {
         if (extracts.length) {

@@ -1,11 +1,12 @@
 
-import { WikiEntity, WikiEntities, PlainObject, WikidataEntities, WikiEntitiesParams } from './types';
-import { getEntities as getWikidataEntities, getEntityTypes } from './wikidata';
+import { WikiEntity, WikiEntities, WikiEntitiesParams } from './types';
+import { getEntities as getWikidataEntities } from './wikidata';
 import { Api as WikipediaApi } from './wikipedia/api';
-import { eachSeries, isValidWikiId } from './utils';
+import { isValidWikiId } from './utils';
+import { getEntityTypesByName } from './wikidata/get_entity_types';
 
 export { simplifyEntity } from './wikidata/simplify_entity';
-export { getEntityTypes, WikipediaApi }
+export { WikipediaApi }
 export * from './simpleEntity';
 
 export * from './types';
@@ -66,7 +67,15 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
 
             if (params.types === true || Array.isArray(params.types)) {
                 const prefixes: string[] = Array.isArray(params.types) ? params.types : null;
-                tasks.push(Promise.all(ids.map(id => getEntityTypes(id, prefixes).then(types => { entities[id].types = types; }))));
+                ids.forEach(id => {
+                    if (entities[id].sitelinks) {
+                        // console.log(entities[id].label,entities[id].sitelinks)
+                        const enName = entities[id].sitelinks['en'];
+                        if (enName) {
+                            tasks.push(getEntityTypesByName(enName, prefixes).then(types => { entities[id].types = types; }));
+                        }
+                    }
+                })
             }
 
             return Promise.all(tasks).then(() => entities);

@@ -1,9 +1,8 @@
 
-import { WikidataEntity, WikidataEntities, WikidataPropertyValue, PlainObject, WikidataEntitiesParams, WikidataEntityClaims, AnyPlainObject } from '../types';
+import { WikidataEntity, WikidataEntities, WikidataPropertyValue, PlainObject, WikidataEntitiesParams, WikidataEntityClaims, AnyPlainObject, WikidataPropsParam } from '../types';
 import { getManyEntities } from './api';
 import { simplifyEntity } from './simplify_entity';
 import { eachSeries, uniq, isValidWikiId } from '../utils';
-export { getEntityTypes } from './get_entity_types';
 
 
 export function getEntities(params: WikidataEntitiesParams)
@@ -47,9 +46,14 @@ function exploreEntitiesProperties(entities: WikidataEntities, lang: string): Pr
     ids = uniq(ids);
 
     return getEntities({
-        ids: ids.join('|'),
+        ids: ids,
         language: lang,
-        props: 'info|labels|descriptions|datatype',
+        props: [
+            WikidataPropsParam.info,
+            WikidataPropsParam.labels,
+            WikidataPropsParam.descriptions,
+            WikidataPropsParam.datatype,
+        ],
         claims: 'none'
     }).then(function (properties) {
         Object.keys(properties).forEach(propertyId => {
@@ -95,8 +99,13 @@ export function exploreEntityClaims(claims: WikidataEntityClaims, params: Wikida
         return Promise.resolve();
     }
 
-    params.ids = ids.join('|');
-    params.props = params.props || 'info|labels|descriptions|datatype';
+    params.ids = ids;
+    params.props = params.props || [
+        WikidataPropsParam.info,
+        WikidataPropsParam.labels,
+        WikidataPropsParam.descriptions,
+        WikidataPropsParam.datatype,
+    ];
     params.claims = params.claims || 'none';
 
 

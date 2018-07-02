@@ -11,7 +11,7 @@ const getEntityCC2 = require('../lib/simpleEntity/getEntityCountry').getEntityCo
 describe('SimpleEntity', function () {
     it('getEntityCountry', function () {
         const lang = 'ro';
-        return wikiEntity.getEntities({ language: lang, ids: 'Q12729770', claims: 'item' })
+        return wikiEntity.getEntities({ language: lang, ids: ['Q12729770'], claims: 'item' })
             .then(function (entities) {
                 assert.equal(1, entities.length);
                 const cc2 = getEntityCC2(entities[0]);
@@ -20,7 +20,7 @@ describe('SimpleEntity', function () {
     });
     it('fromWikiEntity en:simple', function () {
         const lang = 'en';
-        return wikiEntity.getEntities({ language: lang, ids: 'Q18548924', claims: 'none', types: true })
+        return wikiEntity.getEntities({ language: lang, ids: ['Q18548924'], claims: 'none', types: true })
             .then(function (entities) {
                 assert.equal(1, entities.length);
                 const entity = fromWikiEntity(entities[0], lang);
@@ -33,7 +33,7 @@ describe('SimpleEntity', function () {
     });
     it('fromWikiEntity ro:simple', function () {
         const lang = 'ro';
-        return wikiEntity.getEntities({ language: lang, ids: 'Q18548924', claims: 'none', types: true })
+        return wikiEntity.getEntities({ language: lang, ids: ['Q18548924'], claims: 'none', types: true })
             .then(function (entities) {
                 assert.equal(1, entities.length);
                 const entity = fromWikiEntity(entities[0], lang);
@@ -47,7 +47,7 @@ describe('SimpleEntity', function () {
     });
     it('fromWikiEntity Albert Einstein: birth, death dates', function () {
         const lang = 'en';
-        return wikiEntity.getEntities({ language: lang, ids: 'Q937', claims: 'all', types: true })
+        return wikiEntity.getEntities({ language: lang, ids: ['Q937'], claims: 'all', types: true })
             .then(function (entities) {
                 assert.equal(1, entities.length);
                 const entity = fromWikiEntity(entities[0], lang);
@@ -65,7 +65,7 @@ describe('SimpleEntity', function () {
     });
     it('fromWikiEntity Ștefan cel Mare (unknown dates)', function () {
         const lang = 'ro';
-        return wikiEntity.getEntities({ language: lang, titles: 'Ștefan cel Mare', claims: 'item', types: true })
+        return wikiEntity.getEntities({ language: lang, titles: ['Ștefan cel Mare'], claims: 'item', types: true })
             .then(function (entities) {
                 assert.equal(1, entities.length);
                 const entity = fromWikiEntity(entities[0], lang);
@@ -86,7 +86,7 @@ describe('SimpleEntity', function () {
     });
     it('fromWikiEntity IPhone 5 Product', function () {
         const lang = 'en';
-        return wikiEntity.getEntities({ language: lang, ids: 'Q61504', claims: 'all', types: true })
+        return wikiEntity.getEntities({ language: lang, ids: ['Q61504'], claims: 'all', types: true })
             .then(function (entities) {
                 assert.equal(1, entities.length);
                 const entity = fromWikiEntity(entities[0], lang);
@@ -102,7 +102,7 @@ describe('SimpleEntity', function () {
     });
     it('fromWikiEntity Chisinau Location data', function () {
         const lang = 'en';
-        return wikiEntity.getEntities({ language: lang, ids: 'Q21197', claims: 'all', types: true })
+        return wikiEntity.getEntities({ language: lang, ids: ['Q21197'], claims: 'all', types: true })
             .then(function (entities) {
                 assert.equal(1, entities.length);
                 const entity = fromWikiEntity(entities[0], lang);
@@ -119,7 +119,7 @@ describe('SimpleEntity', function () {
 
     it('fromWikiEntity Facebook Organisation data', function () {
         const lang = 'en';
-        return wikiEntity.getEntities({ language: lang, ids: 'Q380', claims: 'none', types: true })
+        return wikiEntity.getEntities({ language: lang, ids: ['Q380'], claims: 'none', types: true })
             .then(function (entities) {
                 assert.equal(1, entities.length);
                 const entity = fromWikiEntity(entities[0], lang);
@@ -136,7 +136,7 @@ describe('SimpleEntity', function () {
 
     it('fromWikiEntity Euro 2016 Event data', function () {
         const lang = 'en';
-        return wikiEntity.getEntities({ language: lang, ids: 'Q189571', claims: 'none', types: true })
+        return wikiEntity.getEntities({ language: lang, ids: ['Q189571'], claims: 'none', types: true })
             .then(function (entities) {
                 assert.equal(1, entities.length);
                 const entity = fromWikiEntity(entities[0], lang);
@@ -153,7 +153,7 @@ describe('SimpleEntity', function () {
 
     it('fromWikiEntity Windows 7 Product data', function () {
         const lang = 'en';
-        return wikiEntity.getEntities({ language: lang, ids: 'Q11215', claims: 'none', types: true })
+        return wikiEntity.getEntities({ language: lang, ids: ['Q11215'], claims: 'none', types: true })
             .then(function (entities) {
                 // console.log(entities[0]);
                 assert.equal(1, entities.length);
@@ -171,7 +171,7 @@ describe('SimpleEntity', function () {
 
     it('Scotland & categories', function () {
         const lang = 'en';
-        return wikiEntity.getEntities({ language: lang, ids: 'Q22', claims: 'node', types: true, categories: true })
+        return wikiEntity.getEntities({ language: lang, ids: ['Q22'], claims: 'node', types: true, categories: true })
             .then(function (entities) {
                 // console.log(entities[0].categories);
                 assert.equal(1, entities.length);
@@ -185,7 +185,7 @@ describe('SimpleEntity', function () {
 
     it('Instagram', function () {
         const lang = 'ro';
-        return wikiEntity.getEntities({ language: lang, ids: 'Q209330', claims: 'item', types: true, categories: true })
+        return wikiEntity.getEntities({ language: lang, ids: ['Q209330'], claims: 'item', types: true, categories: true })
             .then(function (entities) {
                 // console.log(entities[0].categories);
                 assert.equal(1, entities.length);
@@ -197,7 +197,7 @@ describe('SimpleEntity', function () {
 
     it('Piața Marii Adunări Naționale', function () {
         const lang = 'ro';
-        return wikiEntity.getEntities({ language: lang, titles: 'Piața Marii Adunări Naționale', claims: 'item', types: true, categories: true })
+        return wikiEntity.getEntities({ language: lang, titles: ['Piața Marii Adunări Naționale'], claims: 'item', types: true, categories: true })
             .then(function (entities) {
                 // console.log(entities[0].categories);
                 assert.equal(1, entities.length);
@@ -209,7 +209,7 @@ describe('SimpleEntity', function () {
     });
     it('Ziarul de Gardă', function () {
         const lang = 'ro';
-        return wikiEntity.getEntities({ language: lang, titles: 'Ziarul de Gardă', claims: 'item', types: true, categories: true })
+        return wikiEntity.getEntities({ language: lang, titles: ['Ziarul de Gardă'], claims: 'item', types: true, categories: true })
             .then(function (entities) {
                 // console.log(entities[0].categories);
                 assert.equal(1, entities.length);
@@ -221,7 +221,7 @@ describe('SimpleEntity', function () {
     });
     it('Guvernul Republicii Moldova', function () {
         const lang = 'ro';
-        return wikiEntity.getEntities({ language: lang, titles: 'Guvernul Republicii Moldova', claims: 'item', types: true, categories: true })
+        return wikiEntity.getEntities({ language: lang, titles: ['Guvernul Republicii Moldova'], claims: 'item', types: true, categories: true })
             .then(function (entities) {
                 // console.log(entities[0].categories);
                 assert.equal(1, entities.length);
@@ -232,7 +232,7 @@ describe('SimpleEntity', function () {
     });
     it('Casa Albă - building', function () {
         const lang = 'ro';
-        return wikiEntity.getEntities({ language: lang, titles: 'Casa Albă', claims: 'item', types: true, categories: true })
+        return wikiEntity.getEntities({ language: lang, titles: ['Casa Albă'], claims: 'item', types: true, categories: true })
             .then(function (entities) {
                 // console.log(entities[0].categories);
                 assert.equal(1, entities.length);

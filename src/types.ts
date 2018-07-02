@@ -48,14 +48,23 @@ export type WikiEntities = PlainObject<WikiEntity>;
 
 export type ParamClaimsType = 'none' | 'all' | 'item' | 'property';
 export interface WikidataEntitiesParams {
-    ids?: string,
-    titles?: string,
-    props?: string,
+    ids?: string[],
+    titles?: string[],
+    props?: WikidataPropsParam[],
     language?: string,
     // sites?: string[] | string,
     // sitefilter?: string[] | string,
     redirect?: string,
     claims?: ParamClaimsType
+}
+export enum WikidataPropsParam {
+    info = 'info',
+    sitelinks = 'sitelinks',
+    aliases = 'aliases',
+    labels = 'labels',
+    descriptions = 'descriptions',
+    claims = 'claims',
+    datatype = 'datatype',
 }
 
 export interface WikiEntitiesParams extends WikidataEntitiesParams {

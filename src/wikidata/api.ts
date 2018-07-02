@@ -1,6 +1,6 @@
 
 import request from '../request';
-import { WikidataEntity, WikidataEntities, WikidataEntitiesParams } from '../types';
+import { WikidataEntity, WikidataEntities, WikidataEntitiesParams, WikidataPropsParam } from '../types';
 import { isValidWikiId } from '../utils';
 
 const API_URL = 'https://www.wikidata.org/w/api.php';
@@ -9,9 +9,17 @@ export function getEntities(params: WikidataEntitiesParams): Promise<WikidataEnt
 
     const qs = {
         action: 'wbgetentities',
-        ids: getStringArrayParam(params.ids),
-        titles: getStringArrayParam(params.titles),
-        props: getStringArrayParam(params.props, 'info|sitelinks|aliases|labels|descriptions|claims|datatype'),
+        ids: params.ids && params.ids.join('|'),
+        titles: params.titles && params.titles.join('|'),
+        props: (params.props || [
+            WikidataPropsParam.info,
+            WikidataPropsParam.sitelinks,
+            WikidataPropsParam.aliases,
+            WikidataPropsParam.labels,
+            WikidataPropsParam.descriptions,
+            WikidataPropsParam.claims,
+            WikidataPropsParam.datatype
+        ]).join('|'),
         languages: getStringArrayParam(params.language, 'en'),
         // sitefilter: getStringArrayParam(params.sitefilter),
         redirects: params.redirect || 'yes',
@@ -47,7 +55,7 @@ export function getManyEntities(params: WikidataEntitiesParams): Promise<Wikidat
         return Promise.reject(e);
     }
     const keyName = (!!params.ids) ? 'ids' : 'titles';
-    const keyValues = params[keyName].split('|');
+    const keyValues = params[keyName];
 
     const max = 50;
 
@@ -57,7 +65,7 @@ export function getManyEntities(params: WikidataEntitiesParams): Promise<Wikidat
     // i < 4 (max 200 items)
     for (var i = 0; i < countParts && i < 4; i++) {
         const partParams: WikidataEntitiesParams = Object.assign({}, params);
-        partParams[keyName] = keyValues.slice(i * max, (i + 1) * max).join('|');
+        partParams[keyName] = keyValues.slice(i * max, (i + 1) * max);
         if (partParams[keyName].length > 0) {
             parts.push(getEntities(partParams));
         }
