@@ -72,4 +72,18 @@ describe('types', function () {
     //             // assert.equal(true, results[0].types.indexOf('dbo:Newspaper') > -1);
     //         });
     // });
+    it('place: US', function () {
+        return index.getEntities({ language: 'ru', titles: ['Соединённые Штаты Америки'], types: true })
+            .then(function (results) {
+                assert.ok(results[0].types);
+                assert.equal(true, results[0].types.indexOf('dbo:Person') < 0);
+            });
+    });
+    it('place: Italy', function () {
+        return index.getEntities({ language: 'en', titles: ['Italy'], types: true })
+            .then(function (results) {
+                assert.ok(results[0].types);
+                assert.equal(true, results[0].types.indexOf('dbo:Person') < 0);
+            });
+    });
 });

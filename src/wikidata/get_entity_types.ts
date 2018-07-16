@@ -28,7 +28,8 @@ export function getEntityTypesByName(name: string, prefixes?: string[]): Promise
                     const key = PREFIXES_REG.exec(item)[1];
                     return PREFIXES_MAP[key] + ':' + item.substr(key.length);
                 });
-        });
+        })
+        .then(types => repairTypes(types));
 }
 
 function parseTypes(types: any[]): string[] {
@@ -53,4 +54,16 @@ WHERE {
 }`;
     return request<any>({ url: 'http://dbpedia.org/sparql', qs: { query: query }, timeout: 10 * 1000 })
         .then(data => data.results && data.results.bindings);
+}
+
+function repairTypes(types: string[]) {
+    const personIndex = types.findIndex(item => /:Person$/.test(item));
+    if (personIndex > -1) {
+        const placeIndex = types.findIndex(item => /:Place$/.test(item));
+        if (placeIndex > -1) {
+            types.splice(personIndex, 1);
+        }
+    }
+
+    return types;
 }
