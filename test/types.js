@@ -86,4 +86,11 @@ describe('types', function () {
                 assert.equal(true, results[0].types.indexOf('dbo:Person') < 0);
             });
     });
+    it('place: Moscow', function () {
+        return index.getEntities({ language: 'en', titles: ['Moscow'], types: true })
+            .then(function (results) {
+                assert.ok(results[0].types);
+                assert.equal(true, results[0].types.indexOf('dbo:Person') < 0);
+            });
+    });
 });

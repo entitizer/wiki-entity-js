@@ -74,7 +74,7 @@ describe('SimpleEntity', function () {
                 // human
                 assert.equal('Q5', entity.data.P31[0]);
                 // birth date
-                assert.equal(entity.data.P569[0].length, 4);
+                // assert.equal(entity.data.P570[0], 4);
                 // console.log(entity.countryCode)
                 // has english wiki title
                 // assert.ok(!entity.countryCode);
@@ -238,6 +238,29 @@ describe('SimpleEntity', function () {
                 assert.equal(1, entities.length);
                 const entity = fromWikiEntity(entities[0], lang);
                 assert.equal('Casa Albă', entity.name);
+                assert.equal('P', entity.type); //place
+            });
+    });
+    it('US', function () {
+        this.timeout(5000);
+        const lang = 'en';
+        return wikiEntity.getEntities({ language: lang, ids: ['Q30'], claims: 'item', types: true, categories: true })
+            .then(function (entities) {
+                // console.log(entities[0].categories);
+                assert.equal(1, entities.length);
+                const entity = fromWikiEntity(entities[0], lang);
+                assert.equal('P', entity.type); //place
+            });
+    });
+    it('Москва', function () {
+        this.timeout(5000);
+        const lang = 'ru';
+        return wikiEntity.getEntities({ language: lang, titles: ['Москва'], claims: 'item', types: true, categories: true })
+            .then(function (entities) {
+                // console.log(entities[0].categories);
+                assert.equal(1, entities.length);
+                const entity = fromWikiEntity(entities[0], lang);
+                // console.log(entity);
                 assert.equal('P', entity.type); //place
             });
     });
