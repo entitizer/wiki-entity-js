@@ -1,5 +1,5 @@
 
-import { WikidataEntity, WikidataEntities, WikidataPropertyValue, PlainObject, WikidataEntitiesParams, WikidataEntityClaims, AnyPlainObject, WikidataPropsParam } from '../types';
+import { WikidataEntities, WikidataPropertyValue, PlainObject, WikidataEntitiesParams, WikidataEntityClaims, AnyPlainObject, WikidataPropsParam } from '../types';
 import { getManyEntities } from './api';
 import { simplifyEntity } from './simplify_entity';
 import { eachSeries, uniq, isValidWikiId } from '../utils';

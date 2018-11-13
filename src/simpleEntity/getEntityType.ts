@@ -22,16 +22,16 @@ const TYPES_MAP: PlainObject<SimpleEntityType> = {
     'wikidata:Q515': SimpleEntityType.PLACE,
     'wikidata:Q486972': SimpleEntityType.PLACE,
 
+    'schema:Organization': SimpleEntityType.ORG,
+    'dbo:Organisation': SimpleEntityType.ORG,
+    'wikidata:Q43229': SimpleEntityType.ORG,
+
     'schema:Person': SimpleEntityType.PERSON,
     'wikidata:Q215627': SimpleEntityType.PERSON,
     'dul:NaturalPerson': SimpleEntityType.PERSON,
     'wikidata:Q5': SimpleEntityType.PERSON,
     'foaf:Person': SimpleEntityType.PERSON,
     'dbo:Person': SimpleEntityType.PERSON,
-
-    'schema:Organization': SimpleEntityType.ORG,
-    'dbo:Organisation': SimpleEntityType.ORG,
-    'wikidata:Q43229': SimpleEntityType.ORG,
 
     'wikidata:Q1656682': SimpleEntityType.EVENT,
     'dul:Event': SimpleEntityType.EVENT,
