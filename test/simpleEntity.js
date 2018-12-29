@@ -264,4 +264,14 @@ describe('SimpleEntity', function () {
                 assert.equal('P', entity.type); //place
             });
     });
+
+    it('BBC: Organisation', function () {
+        this.timeout(5000);
+        const lang = 'en';
+        return wikiEntity.getEntities({ language: lang, titles: ['BBC'], types: true })
+            .then(function (entities) {
+                const entity = fromWikiEntity(entities[0], lang);
+                assert.equal('O', entity.type); //org
+            });
+    });
 });

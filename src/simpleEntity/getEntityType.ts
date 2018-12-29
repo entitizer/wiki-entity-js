@@ -22,6 +22,7 @@ const TYPES_MAP: PlainObject<SimpleEntityType> = {
     'wikidata:Q515': SimpleEntityType.PLACE,
     'wikidata:Q486972': SimpleEntityType.PLACE,
 
+    'dbo:Company': SimpleEntityType.ORG,
     'schema:Organization': SimpleEntityType.ORG,
     'dbo:Organisation': SimpleEntityType.ORG,
     'wikidata:Q43229': SimpleEntityType.ORG,
@@ -42,11 +43,24 @@ const TYPES_MAP: PlainObject<SimpleEntityType> = {
     'wikidata:Q7397': SimpleEntityType.PRODUCT,
 };
 
+const TYPES_NAME_MAP: PlainObject<string[]> = Object.keys(TYPES_MAP)
+    .reduce<PlainObject<string[]>>((map, name) => {
+        const type = TYPES_MAP[name];
+        map[type] = map[type] || [];
+        map[type].push(name);
+        return map;
+    }, {});
+
 // const TypesKeys = Object.keys(TYPES_MAP);
 
 export function getEntityType(wikiEntity: WikiEntity): SimpleEntityType {
     if (!wikiEntity.types) {
         return null;
+    }
+
+    // trying to fix confusion between Org and Person
+    if (containsType(wikiEntity.types, SimpleEntityType.ORG) && containsType(wikiEntity.types, SimpleEntityType.PERSON)) {
+        return SimpleEntityType.ORG;
     }
 
     for (var i = 0; i < wikiEntity.types.length; i++) {
@@ -55,4 +69,14 @@ export function getEntityType(wikiEntity: WikiEntity): SimpleEntityType {
         }
     }
 
+}
+
+function containsType(types: string[], type: SimpleEntityType) {
+    for (const typeName of types) {
+        if (~TYPES_NAME_MAP[type].indexOf(typeName)) {
+            return true;
+        }
+    }
+
+    return false;
 }
