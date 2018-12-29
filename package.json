@@ -1,6 +1,6 @@
 {
   "name": "wiki-entity",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Wiki entity fetcher",
   "main": "./lib/index.js",
   "types": "./types/index.d.ts",
@@ -11,11 +11,10 @@
     "tscw": "tsc -w",
     "preversion": "npm run tsc",
     "postversion": "git push --follow-tags",
-    "prepublish": "npm run tsc",
-    "lint": "tslint ./src/**/*.ts"
+    "prepublish": "npm run tsc"
   },
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.0.0"
   },
   "repository": {
     "type": "git",
@@ -36,10 +35,10 @@
   },
   "homepage": "https://github.com/entitizer/wiki-entity#readme",
   "devDependencies": {
-    "@types/node": "^10.12.6",
-    "debug": "^4.1.0",
+    "@types/node": "^10.12.18",
+    "debug": "^4.1.1",
     "mocha": "^5.2.0",
-    "typescript": "^3.1.6"
+    "typescript": "^3.2.2"
   },
   "dependencies": {
     "request": "^2.88.0"
