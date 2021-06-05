@@ -1,35 +1,18 @@
-'use strict';
+import axios, { AxiosRequestConfig } from "axios";
 
-const request = require('request');
-const debug = require('debug')('wiki-entity');
+export type RequestOptions = AxiosRequestConfig;
 
-export default function <T>(options: any): Promise<T> {
-	options = Object.assign({
-		method: 'GET',
-		json: true,
-		encoding: 'utf8',
-		headers: {
-			'User-Agent': 'entity-finder'
-		},
-		timeout: 5 * 1000
-	}, options);
+export default async function <T>(
+  url: string,
+  options: RequestOptions
+): Promise<T> {
+  const response = await axios(url, {
+    method: "GET",
+    responseType: "json",
+    headers: { "User-Agent": "entity-finder" },
+    ...options,
+    timeout: options.timeout || 10 * 1000
+  });
 
-	if (options.qs) {
-		for (var prop in options.qs) {
-			if (~[null].indexOf(options.qs[prop])) {
-				delete options.qs[prop];
-			}
-		}
-	}
-
-	debug('request ' + (options.uri || options.url), options.qs);
-
-	return new Promise<T>(function (resolve, reject) {
-		request(options, function (error: Error, response: any, body: any) {
-			if (error || response.statusCode >= 400) {
-				return reject(error || new Error('Invalid statusCode=' + response.statusCode + (options.uri || options.url)));
-			}
-			resolve(body);
-		});
-	});
-};
+  return response.data;
+}

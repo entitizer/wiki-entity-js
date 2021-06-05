@@ -33,6 +33,7 @@ Required. `ids` or `titles` require. Params properties:
 - **types** :*boolean* | *string*[] - `true` to get entity types. Filter types by [prefixes](https://dbpedia.org/sparql?nsdecl). Example: [`dbo`, `schema`] will return only types defined by `dbpedia.org/ontology/` and `schema.org`. Default: `false`.
 - **redirects** : *boolean* - get wikipedia redirects titles. Default: `false`. Works only if `sitelinks` is present.
 - **categories** : *boolean* - get wikipedia article categories. Default: `false`. Works only if `sitelinks` is present.
+- **httpTimeout**: *number* - http requests timeout
 
 ### convertToSimpleEntity(wikiEntity: WikiEntity): SimpleEntity
 

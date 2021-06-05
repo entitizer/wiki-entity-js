@@ -1,69 +1,66 @@
-
-import request from '../request';
-import { StringPlainObject } from '../types';
+import request from "../request";
+import { StringPlainObject } from "../types";
 
 const PREFIXES_MAP: StringPlainObject = {
-    'http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#': 'dul',
-    'http://dbpedia.org/ontology/': 'dbo',
-    'http://www.w3.org/2002/07/owl#': 'owl',
-    'http://www.wikidata.org/entity/': 'wikidata',
-    'http://schema.org/': 'schema',
-    'http://xmlns.com/foaf/0.1/': 'foaf',
-    'http://www.w3.org/2003/01/geo/wgs84_pos#': 'geo'
+  "http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#": "dul",
+  "http://dbpedia.org/ontology/": "dbo",
+  "http://www.w3.org/2002/07/owl#": "owl",
+  "http://www.wikidata.org/entity/": "wikidata",
+  "http://schema.org/": "schema",
+  "http://xmlns.com/foaf/0.1/": "foaf",
+  "http://www.w3.org/2003/01/geo/wgs84_pos#": "geo"
 };
 
-const PREFIXES = Object.keys(PREFIXES_MAP).map(key => PREFIXES_MAP[key]);
-const PREFIXES_REG = new RegExp('^(' + Object.keys(PREFIXES_MAP).join('|') + ')');
+const PREFIXES = Object.keys(PREFIXES_MAP).map((key) => PREFIXES_MAP[key]);
+const PREFIXES_REG = new RegExp(
+  "^(" + Object.keys(PREFIXES_MAP).join("|") + ")"
+);
 
-export function getEntityTypesByName(name: string, prefixes?: string[]): Promise<string[]> {
-    if (!prefixes || !prefixes.length) {
-        prefixes = PREFIXES;
-    }
+export function getEntityTypesByName(
+  name: string,
+  prefixes?: string[]
+): Promise<string[]> {
+  if (!prefixes || !prefixes.length) {
+    prefixes = PREFIXES;
+  }
 
-    return dbpediaTypes(name)
-        .then(types => parseTypes(types))
-        .then(types => {
-            return types.filter(item => PREFIXES_REG.test(item))
-                .map(item => {
-                    const key = PREFIXES_REG.exec(item)[1];
-                    return PREFIXES_MAP[key] + ':' + item.substr(key.length);
-                });
-        })
-        .then(types => repairTypes(types));
+  return dbpediaTypes(name)
+    .then((types) => parseTypes(types))
+    .then((types) => {
+      return types
+        .filter((item) => PREFIXES_REG.test(item))
+        .map((item) => {
+          const key = PREFIXES_REG.exec(item)[1];
+          return PREFIXES_MAP[key] + ":" + item.substr(key.length);
+        });
+    })
+    .then((types) => repairTypes(types));
 }
 
 function parseTypes(types: any[]): string[] {
-    return types.map(item => item.type.value);
+  return types.map((item) => item.type.value);
 }
 
-// function dbpediaWikidataTypes(id: string): Promise<any[]> {
-//     const query = `PREFIX dbpedia-wikidata: <http://wikidata.dbpedia.org/resource/>
-// SELECT ?type
-// WHERE {
-// dbpedia-wikidata:${id} rdf:type ?type
-// }`;
-//     return request<any>({ url: 'http://dbpedia.org/sparql', qs: { query: query }, timeout: 10 * 1000 })
-//         .then(data => data.results && data.results.bindings);
-// }
-
 function dbpediaTypes(name: string): Promise<any[]> {
-    const query = `
+  const query = `
 SELECT ?type
 WHERE {
-    <http://dbpedia.org/resource/${name.replace(/\s+/g, '_')}> rdf:type ?type
+    <http://dbpedia.org/resource/${name.replace(/\s+/g, "_")}> rdf:type ?type
 }`;
-    return request<any>({ url: 'http://dbpedia.org/sparql', qs: { query: query }, timeout: 10 * 1000 })
-        .then(data => data.results && data.results.bindings);
+  return request<any>("http://dbpedia.org/sparql", {
+    params: { query: query },
+    timeout: 10 * 1000
+  }).then((data) => data.results && data.results.bindings);
 }
 
 function repairTypes(types: string[]) {
-    const personIndex = types.findIndex(item => /:Person$/.test(item));
-    if (personIndex > -1) {
-        const placeIndex = types.findIndex(item => /:Place$/.test(item));
-        if (placeIndex > -1) {
-            types.splice(personIndex, 1);
-        }
+  const personIndex = types.findIndex((item) => /:Person$/.test(item));
+  if (personIndex > -1) {
+    const placeIndex = types.findIndex((item) => /:Place$/.test(item));
+    if (placeIndex > -1) {
+      types.splice(personIndex, 1);
     }
+  }
 
-    return types;
+  return types;
 }
