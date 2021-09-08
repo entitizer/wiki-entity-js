@@ -1,3 +1,4 @@
+import { WikidataEntity } from "..";
 import request from "../request";
 import {
   WikidataEntities,
@@ -48,8 +49,8 @@ export async function getEntities(
 
   const entities = (data && data.entities) || {};
   for (let id of Object.keys(entities)) {
-    if (!isValidWikiId(id)) {
-      entities[id] = null;
+    if (!isValidWikiId(id) || ~Object.keys(entities[id]).indexOf("missing")) {
+      delete entities[id];
     }
   }
   return entities;

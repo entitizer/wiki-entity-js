@@ -40,10 +40,13 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
         wikiApi.categories();
       }
 
-      if (callWikiApi && entities[ids[0]].sitelinks) {
-        const listEntities = ids.map((id) => entities[id]);
+      if (callWikiApi && entities[ids[0]] && entities[ids[0]].sitelinks) {
         const titleIds = ids.reduce((prev: any, id) => {
-          if (entities[id].sitelinks[lang]) {
+          if (
+            entities[id] &&
+            entities[id].sitelinks &&
+            entities[id].sitelinks[lang]
+          ) {
             prev[entities[id].sitelinks[lang]] = id;
           }
           return prev;
@@ -52,7 +55,13 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
           wikiApi
             .query(lang, {
               titles: ids
-                .map((id) => entities[id].sitelinks[lang])
+                .map(
+                  (id) =>
+                    (entities[id] &&
+                      entities[id].sitelinks &&
+                      entities[id].sitelinks[lang]) ||
+                    null
+                )
                 .filter((item) => !!item)
                 .join("|")
             })
@@ -78,7 +87,7 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
           ? params.types
           : null;
         ids.forEach((id) => {
-          if (entities[id].sitelinks) {
+          if (entities[id] && entities[id].sitelinks) {
             // console.log(entities[id].label,entities[id].sitelinks)
             const enName = entities[id].sitelinks["en"];
             if (enName) {
@@ -95,6 +104,8 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
       return Promise.all(tasks).then(() => entities);
     })
     .then(function (resultEntities) {
-      return Object.keys(resultEntities).map((id) => resultEntities[id]);
+      return Object.keys(resultEntities)
+        .map((id) => resultEntities[id])
+        .filter((it) => !!it);
     });
 }
