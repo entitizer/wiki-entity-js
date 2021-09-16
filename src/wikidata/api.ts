@@ -28,7 +28,7 @@ export async function getEntities(
     ).join("|"),
     languages: params.languages
       ? params.languages.join("|")
-      : "en|de|fr|es|it|ru",
+      : params.language || "en",
     // sitefilter: getStringArrayParam(params.sitefilter),
     redirects: params.redirect || "yes",
     format: "json",
