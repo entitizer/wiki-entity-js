@@ -7,7 +7,7 @@ describe("entities", function () {
   it("should order results by input titles", function () {
     return index
       .getEntities({
-        language: "en",
+        languages: ["en", "ru", "de", "fr", "it"],
         titles: ["Chișinău", "Cantemir, Moldova"],
         types: true
       })
@@ -17,7 +17,7 @@ describe("entities", function () {
         assert.ok(results[0].types);
         assert.equal(true, results[0].types.indexOf("schema:City") > -1);
         assert.equal(true, results[1].types.indexOf("schema:Place") > -1);
-        // console.log(results[1].types)
+        assert.ok(Object.keys(results[0].labels).length > 2);
       });
   });
   it("should order results by input ids", function () {
@@ -55,7 +55,7 @@ describe("entities", function () {
         categories: false
       })
       .then(function (results) {
-          console.log(results);
+        console.log(results);
         assert.equal(results.length, 0);
       });
   });

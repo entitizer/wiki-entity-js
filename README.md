@@ -34,6 +34,7 @@ Required. `ids` or `titles` require. Params properties:
 - **redirects** : *boolean* - get wikipedia redirects titles. Default: `false`. Works only if `sitelinks` is present.
 - **categories** : *boolean* - get wikipedia article categories. Default: `false`. Works only if `sitelinks` is present.
 - **httpTimeout**: *number* - http requests timeout
+- **languages**: "string"[] - languages for `WikiEntity.labels`
 
 ### convertToSimpleEntity(wikiEntity: WikiEntity): SimpleEntity
 
@@ -48,6 +49,7 @@ Convert a complex WikiEntity object to SimpleEntity object.
 type WikiEntity = {
     id: string;
     label?: string;
+    labels?: IIndexType<string>;
     description?: string;
     extract?: string;
     pageid?: number;

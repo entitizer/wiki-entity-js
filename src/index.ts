@@ -88,7 +88,6 @@ export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
           : null;
         ids.forEach((id) => {
           if (entities[id] && entities[id].sitelinks) {
-            // console.log(entities[id].label,entities[id].sitelinks)
             const enName = entities[id].sitelinks["en"];
             if (enName) {
               tasks.push(

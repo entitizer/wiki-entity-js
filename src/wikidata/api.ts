@@ -1,4 +1,3 @@
-import { WikidataEntity } from "..";
 import request from "../request";
 import {
   WikidataEntities,
@@ -27,7 +26,9 @@ export async function getEntities(
         WikidataPropsParam.datatype
       ]
     ).join("|"),
-    languages: getStringArrayParam(params.language, "en"),
+    languages: params.languages
+      ? params.languages.join("|")
+      : "en|de|fr|es|it|ru",
     // sitefilter: getStringArrayParam(params.sitefilter),
     redirects: params.redirect || "yes",
     format: "json",

@@ -32,6 +32,7 @@ export interface WikidataEntity extends WikidataBaseEntity {
   aliases?: string[];
   sitelinks?: PlainObject<string>;
   claims?: WikidataEntityClaims;
+  labels?: PlainObject<string>;
 }
 
 export type WikidataEntities = PlainObject<WikidataEntity>;
@@ -56,6 +57,7 @@ export interface WikidataEntitiesParams {
   redirect?: string;
   claims?: ParamClaimsType;
   httpTimeout?: number;
+  languages?: string[];
 }
 
 export enum WikidataPropsParam {
