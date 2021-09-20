@@ -49,13 +49,13 @@ Convert a complex WikiEntity object to SimpleEntity object.
 type WikiEntity = {
     id: string;
     label?: string;
-    labels?: IIndexType<string>;
+    labels?: PlainObject<string>;
     description?: string;
     extract?: string;
     pageid?: number;
     aliases?: string[];
-    sitelinks?: IIndexType<string>;
-    claims?: IIndexType<WikidataProperty>;
+    sitelinks?: PlainObject<string>;
+    claims?: PlainObject<WikidataProperty>;
     types?: string[];
     redirects?: string[];
     categories?: string[];
@@ -75,9 +75,10 @@ type WikidataPropertyValue = {
     value_string?: string;
     label?: string;
     description?: string;
+    qualifiers?: WikidataEntityClaims | null;
 }
 
-type IIndexType<T> = {
+type PlainObject<T> = {
     [index: string]: T
 }
 
