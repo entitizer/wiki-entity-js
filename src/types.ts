@@ -12,6 +12,7 @@ export interface WikidataPropertyValue {
   value_string?: string;
   label?: string;
   description?: string;
+  qualifiers?: WikidataEntityClaims | null;
 }
 
 export interface WikidataBaseEntity {

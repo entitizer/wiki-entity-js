@@ -20,6 +20,7 @@ describe("entities", function () {
         assert.ok(Object.keys(results[0].labels).length > 2);
       });
   });
+
   it("should order results by input ids", function () {
     return index
       .getEntities({
@@ -31,6 +32,7 @@ describe("entities", function () {
         assert.equal("Q21197", results[1].id);
       });
   });
+
   it("should parse claim time type", function () {
     return index.getEntities({ ids: ["Q218134"] }).then(function (results) {
       assert.equal(results[0].claims.P570.values[0].value_string, "1504-07-02");
@@ -39,6 +41,7 @@ describe("entities", function () {
       // assert.equal('Q21197', results[1].id);
     });
   });
+
   it("should not throw any error", function () {
     return index
       .getEntities({ language: "ro", titles: ["Italia"], types: true })
@@ -46,6 +49,7 @@ describe("entities", function () {
         assert.equal("Q38", results[0].id);
       });
   });
+
   it("missing id", function () {
     return index
       .getEntities({

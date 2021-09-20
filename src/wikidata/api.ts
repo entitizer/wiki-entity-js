@@ -112,10 +112,3 @@ function getError(data: any): Error {
 function hasError(data: any): boolean {
   return !!data.error;
 }
-
-function getStringArrayParam(value: string, def: string = null) {
-  if (!value || value.length === 0) {
-    return def;
-  }
-  return value;
-}
