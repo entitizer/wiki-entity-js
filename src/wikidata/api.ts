@@ -26,9 +26,7 @@ export async function getEntities(
         WikidataPropsParam.datatype
       ]
     ).join("|"),
-    languages: params.languages
-      ? params.languages.join("|")
-      : params.language || "en",
+    languages: params.languages,
     // sitefilter: getStringArrayParam(params.sitefilter),
     redirects: params.redirect || "yes",
     format: "json",
@@ -36,7 +34,7 @@ export async function getEntities(
   };
 
   if (params.titles) {
-    qs.sites = qs.languages.split("|")[0] + "wiki";
+    qs.sites = (params.language || "en") + "wiki";
   } else {
     delete qs.sites;
   }
@@ -70,8 +68,8 @@ export async function getManyEntities(
   const countParts = keyValues.length / max + 1;
   const parts: Promise<WikidataEntities>[] = [];
 
-  // i < 4 (max 200 items)
-  for (var i = 0; i < countParts && i < 4; i++) {
+  // i < 10 (max 500 items)
+  for (var i = 0; i < countParts && i < 10; i++) {
     const partParams: WikidataEntitiesParams = Object.assign({}, params);
     partParams[keyName] = keyValues.slice(i * max, (i + 1) * max);
     if (partParams[keyName].length > 0) {

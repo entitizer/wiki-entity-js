@@ -24,8 +24,8 @@ Gets entities from wikidata and wikipedia.
 
 Required. `ids` or `titles` require. Params properties:
 
-- **ids** :*string[]* - wikidata ids; (max 200)
-- **titles** :*string[]* - wikipedia article titles; (max 200)
+- **ids** :*string[]* - wikidata ids; (max 500)
+- **titles** :*string[]* - wikipedia article titles; (max 500)
 - **language** :*string* - language of `titles` param and of the result object info; default: `en`
 - **props** :*string[]* - entity props to get. Can by: `info`|`sitelinks`|`aliases`|`labels`|`descriptions`|`claims`|`datatype`;
 - **claims** :*string* - How to resolve the claims. Can be: `none`, `all`, `item`, `property`. Default: `none`. `all` resolves `item` and `property` types.
