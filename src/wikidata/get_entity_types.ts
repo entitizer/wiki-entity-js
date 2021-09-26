@@ -45,7 +45,9 @@ function dbpediaTypes(name: string): Promise<any[]> {
   const query = `
 SELECT ?type
 WHERE {
-    <http://dbpedia.org/resource/${name.replace(/\s+/g, "_")}> rdf:type ?type
+    <http://dbpedia.org/resource/${encodeURIComponent(
+      name.replace(/\s+/g, "_")
+    )}> rdf:type ?type
 }`;
   return request<any>("http://dbpedia.org/sparql", {
     params: { query: query },

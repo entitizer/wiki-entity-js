@@ -50,6 +50,14 @@ describe("entities", function () {
       });
   });
 
+  it(`Joseph_"Chip"_Yablonski`, function () {
+    return index
+      .getEntities({ language: "en", titles: ["Joseph_\"Chip\"_Yablonski"], types: true })
+      .then(function (results) {
+        assert.equal("Q6280729", results[0].id);
+      });
+  });
+
   it("missing id", function () {
     return index
       .getEntities({
