@@ -1,6 +1,6 @@
 {
   "name": "wiki-entity",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Wiki entity fetcher",
   "main": "./lib/index.js",
   "types": "./types/index.d.ts",

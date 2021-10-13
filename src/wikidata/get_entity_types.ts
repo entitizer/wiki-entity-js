@@ -51,7 +51,7 @@ WHERE {
 }`;
   return request<any>("http://dbpedia.org/sparql", {
     params: { query: query },
-    timeout: 10 * 1000
+    timeout: 30 * 1000
   }).then((data) => data.results && data.results.bindings);
 }
 
