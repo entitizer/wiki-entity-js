@@ -42,17 +42,19 @@ function parseTypes(types: any[]): string[] {
 }
 
 function dbpediaTypes(name: string): Promise<any[]> {
-  const query = `
-SELECT ?type
-WHERE {
-    <http://dbpedia.org/resource/${encodeURIComponent(
-      name.replace(/\s+/g, "_")
-    )}> rdf:type ?type
-}`;
+  const url = `http://dbpedia.org/resource/${encodeURIComponent(
+    name.replace(/\s+/g, "_")
+  )}`;
+  const query = `SELECT ?type WHERE { <${url}> rdf:type ?type }`;
   return request<any>("http://dbpedia.org/sparql", {
     params: { query: query },
     timeout: 30 * 1000
-  }).then((data) => data.results && data.results.bindings);
+  })
+    .then((data) => data.results && data.results.bindings)
+    .catch((error) => {
+      console.error(`${error.message}: ${url}`);
+      return [];
+    });
 }
 
 function repairTypes(types: string[]) {
