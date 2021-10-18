@@ -23,14 +23,17 @@ export async function getEntities(
   const wikiApi = new WikipediaApi({}, params.httpTimeout);
 
   if (params.extract) wikiApi.extract(params.extract);
-
   if (params.redirects) wikiApi.redirects();
-
   if (params.categories) wikiApi.categories();
+  const useWikiApi =
+    params.extract ||
+    params.redirects ||
+    params.categories ||
+    params.wikiPageId !== false;
 
   const tasks: unknown[] = [];
 
-  if (entities[ids[0]] && entities[ids[0]].sitelinks) {
+  if (useWikiApi && entities[ids[0]] && entities[ids[0]].sitelinks) {
     const titleIds = ids.reduce((prev: any, id) => {
       if (
         entities[id] &&

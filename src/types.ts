@@ -80,4 +80,5 @@ export interface WikiEntitiesParams extends WikidataEntitiesParams {
   types?: boolean | string[];
   redirects?: boolean;
   categories?: boolean;
+  wikiPageId?: boolean;
 }

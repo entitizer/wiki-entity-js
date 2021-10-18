@@ -34,7 +34,8 @@ Required. `ids` or `titles` require. Params properties:
 - **redirects** : *boolean* - get wikipedia redirects titles. Default: `false`. Works only if `sitelinks` is present.
 - **categories** : *boolean* - get wikipedia article categories. Default: `false`. Works only if `sitelinks` is present.
 - **httpTimeout**: *number* - http requests timeout
-- **languages**: "string"[] - languages for `WikiEntity.labels`
+- **languages**: *string[]* - languages for `WikiEntity.labels`
+- **wikiPageId**: *boolean* - get wikiPageId, Default `true`
 
 ### convertToSimpleEntity(wikiEntity: WikiEntity): SimpleEntity
 
