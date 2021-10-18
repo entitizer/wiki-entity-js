@@ -37,7 +37,7 @@
   "devDependencies": {
     "@types/node": "latest",
     "debug": "^4.1.1",
-    "mocha": "^6.2.2",
+    "mocha": "^8.2.1",
     "typescript": "latest"
   },
   "dependencies": {
