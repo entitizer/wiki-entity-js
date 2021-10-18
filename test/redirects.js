@@ -18,6 +18,7 @@ describe("redirects", function () {
         assert.ok(results[0].redirects.length);
       });
   });
+
   it("should get Barack Obama redirects", function () {
     return index
       .getEntities({
@@ -31,6 +32,7 @@ describe("redirects", function () {
         assert.ok(results[0].redirects.length);
       });
   });
+
   it("Q104772811 redirectsToId", function () {
     return index
       .getEntities({
@@ -41,6 +43,18 @@ describe("redirects", function () {
       })
       .then(function (results) {
         assert.equal(results[0].redirectsToId, "Q104794561");
+      });
+  });
+
+  it("Kara Tointon pageid", function () {
+    return index
+      .getEntities({
+        language: "en",
+        titles: ["Kara Tointon"],
+        redirects: true
+      })
+      .then(function (results) {
+        assert.equal(results[0].pageid, 3198752);
       });
   });
 });

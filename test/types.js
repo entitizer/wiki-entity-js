@@ -62,7 +62,6 @@ describe("types", function () {
       })
       .then(function (results) {
         assert.ok(results[0].types);
-        // assert.equal(true, results[0].types.indexOf('schema:Event') > -1);
       });
   });
   it("work: Alice în Țara Minunilorn", function () {
