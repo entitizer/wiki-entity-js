@@ -43,6 +43,7 @@ export interface WikiEntity extends WikidataEntity {
   types?: string[];
   redirects?: string[];
   categories?: string[];
+  redirectsToId?: string;
 }
 
 export type WikiEntities = PlainObject<WikiEntity>;

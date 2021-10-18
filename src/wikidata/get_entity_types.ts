@@ -42,9 +42,7 @@ function parseTypes(types: any[]): string[] {
 }
 
 function dbpediaTypes(name: string): Promise<any[]> {
-  const url = `http://dbpedia.org/resource/${encodeURIComponent(
-    name.replace(/\s+/g, "_")
-  )}`;
+  const url = `http://dbpedia.org/resource/${name.replace(/\s+/g, "_")}`;
   const query = `SELECT ?type WHERE { <${url}> rdf:type ?type }`;
   return request<any>("http://dbpedia.org/sparql", {
     params: { query: query },

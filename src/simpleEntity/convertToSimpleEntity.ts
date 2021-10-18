@@ -25,6 +25,7 @@ export function convertToSimpleEntity(
   entity.description = wikiEntity.description;
   entity.wikiPageId = wikiEntity.pageid;
   entity.about = wikiEntity.extract;
+  if (wikiEntity.redirectsToId) entity.redirectsToId = wikiEntity.redirectsToId;
   if (wikiEntity.types) {
     entity.types = uniq(
       wikiEntity.types.filter((item) => !/:(Thing|Agent)$/.test(item))

@@ -59,6 +59,7 @@ type WikiEntity = {
     types?: string[];
     redirects?: string[];
     categories?: string[];
+    redirectsToId?: string;
 }
 
 type WikidataProperty = {
@@ -113,6 +114,7 @@ export type SimpleEntity = {
     countryCodes?: string[]
     data?: SimpleEntityData
     categories?: string[]
+    redirectsToId?: string;
 }
 
 ```
