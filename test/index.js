@@ -52,7 +52,11 @@ describe("entities", function () {
 
   it(`Joseph_"Chip"_Yablonski`, function () {
     return index
-      .getEntities({ language: "en", titles: ["Joseph_\"Chip\"_Yablonski"], types: true })
+      .getEntities({
+        language: "en",
+        titles: ['Joseph_"Chip"_Yablonski'],
+        types: true
+      })
       .then(function (results) {
         assert.equal("Q6280729", results[0].id);
       });
@@ -67,7 +71,6 @@ describe("entities", function () {
         categories: false
       })
       .then(function (results) {
-        console.log(results);
         assert.equal(results.length, 0);
       });
   });

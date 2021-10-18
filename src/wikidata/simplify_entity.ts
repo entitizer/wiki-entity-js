@@ -16,9 +16,9 @@ export function simplifyEntity(
 ): WikidataEntity {
   const entity: WikidataEntity = { id: data.id };
 
-  if (data.pageid) {
-    entity.pageid = data.pageid;
-  }
+  if (data.pageid) entity.pageid = data.pageid;
+
+  if (data.redirectsToId) entity.redirectsToId = data.redirectsToId;
 
   if (options.labels !== false && data.labels) {
     entity.labels = simplifyLabels(data.labels);
@@ -27,25 +27,19 @@ export function simplifyEntity(
 
   if (options.descriptions !== false && data.descriptions) {
     entity.description = simplifyDescriptions(data.descriptions)[lang];
-    if (!entity.description) {
-      delete entity.description;
-    }
+    if (!entity.description) delete entity.description;
   }
 
   if (options.aliases !== false && data.aliases) {
     entity.aliases = simplifyAliases(data.aliases)[lang];
-    if (!entity.aliases) {
-      delete entity.aliases;
-    }
+    if (!entity.aliases) delete entity.aliases;
   }
 
-  if (options.sitelinks !== false && data.sitelinks) {
+  if (options.sitelinks !== false && data.sitelinks)
     entity.sitelinks = simplifySitelinks(data.sitelinks);
-  }
 
-  if (options.claims !== false && data.claims) {
+  if (options.claims !== false && data.claims)
     entity.claims = simplifyClaims(data.claims);
-  }
 
   return entity;
 }
