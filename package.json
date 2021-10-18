@@ -35,10 +35,10 @@
   },
   "homepage": "https://github.com/entitizer/wiki-entity#readme",
   "devDependencies": {
-    "@types/node": "^10.12.18",
+    "@types/node": "latest",
     "debug": "^4.1.1",
-    "mocha": "^5.2.0",
-    "typescript": "^3.2.2"
+    "mocha": "^6.2.2",
+    "typescript": "latest"
   },
   "dependencies": {
     "axios": "^0.21.1"
