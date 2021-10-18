@@ -132,7 +132,7 @@ export function exploreEntityClaims(
       pa.forEach((pai) => {
         const val: AnyPlainObject = claims[pai.pid].values[pai.index];
         for (var prop in item) {
-          if (~["label", "pageid", "description"].indexOf(prop)) {
+          if (~["label", "description"].indexOf(prop)) {
             val[prop] = item[prop];
           }
         }

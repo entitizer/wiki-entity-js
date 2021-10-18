@@ -9,102 +9,87 @@ export { WikipediaApi };
 export * from "./simpleEntity";
 export * from "./types";
 
-export function getEntities(params: WikiEntitiesParams): Promise<WikiEntity[]> {
+export async function getEntities(
+  params: WikiEntitiesParams
+): Promise<WikiEntity[]> {
   const lang = params.language || "en";
 
-  return getWikidataEntities(params)
-    .then(function (wikiDataEntities) {
-      const entities: WikiEntities = wikiDataEntities;
+  const entities = await getWikidataEntities(params);
 
-      const ids = Object.keys(entities).filter((id) => isValidWikiId(id));
+  const ids = Object.keys(entities).filter((id) => isValidWikiId(id));
 
-      if (ids.length === 0) {
-        return entities;
+  if (ids.length === 0) return [];
+
+  const wikiApi = new WikipediaApi({}, params.httpTimeout);
+
+  if (params.extract) wikiApi.extract(params.extract);
+
+  if (params.redirects) wikiApi.redirects();
+
+  if (params.categories) wikiApi.categories();
+
+  const tasks: unknown[] = [];
+
+  if (entities[ids[0]] && entities[ids[0]].sitelinks) {
+    const titleIds = ids.reduce((prev: any, id) => {
+      if (
+        entities[id] &&
+        entities[id].sitelinks &&
+        entities[id].sitelinks[lang]
+      ) {
+        prev[entities[id].sitelinks[lang]] = id;
       }
-
-      const tasks: any[] = [];
-
-      const wikiApi = new WikipediaApi({}, params.httpTimeout);
-      let callWikiApi = false;
-
-      if (params.extract) {
-        callWikiApi = true;
-        wikiApi.extract(params.extract);
-      }
-      if (params.redirects) {
-        callWikiApi = true;
-        wikiApi.redirects();
-      }
-      if (params.categories) {
-        callWikiApi = true;
-        wikiApi.categories();
-      }
-
-      if (callWikiApi && entities[ids[0]] && entities[ids[0]].sitelinks) {
-        const titleIds = ids.reduce((prev: any, id) => {
-          if (
-            entities[id] &&
-            entities[id].sitelinks &&
-            entities[id].sitelinks[lang]
-          ) {
-            prev[entities[id].sitelinks[lang]] = id;
-          }
-          return prev;
-        }, {});
-        tasks.push(
-          wikiApi
-            .query(lang, {
-              titles: ids
-                .map(
-                  (id) =>
-                    (entities[id] &&
-                      entities[id].sitelinks &&
-                      entities[id].sitelinks[lang]) ||
-                    null
-                )
-                .filter((item) => !!item)
-                .join("|")
-            })
-            .then((apiResults) =>
-              apiResults.forEach((result) => {
-                const entity = entities[titleIds[result.title]];
-                if (params.extract) {
-                  entity.extract = result.extract;
-                }
-                if (params.redirects) {
-                  entity.redirects = result.redirects;
-                }
-                if (params.categories) {
-                  entity.categories = result.categories;
-                }
-              })
+      return prev;
+    }, {});
+    tasks.push(
+      wikiApi
+        .query(lang, {
+          titles: ids
+            .map(
+              (id) =>
+                (entities[id] &&
+                  entities[id].sitelinks &&
+                  entities[id].sitelinks[lang]) ||
+                null
             )
-        );
-      }
+            .filter((item) => !!item)
+            .join("|")
+        })
+        .then((apiResults) =>
+          apiResults.forEach((result) => {
+            const entity = entities[titleIds[result.title]];
+            entity.pageid = result.pageid;
+            if (params.extract) entity.extract = result.extract;
 
-      if (params.types === true || Array.isArray(params.types)) {
-        const prefixes: string[] = Array.isArray(params.types)
-          ? params.types
-          : null;
-        ids.forEach((id) => {
-          if (entities[id] && entities[id].sitelinks) {
-            const enName = entities[id].sitelinks["en"];
-            if (enName) {
-              tasks.push(
-                getEntityTypesByName(enName, prefixes).then((types) => {
-                  entities[id].types = types;
-                })
-              );
-            }
-          }
-        });
-      }
+            if (params.redirects) entity.redirects = result.redirects;
 
-      return Promise.all(tasks).then(() => entities);
-    })
-    .then(function (resultEntities) {
-      return Object.keys(resultEntities)
-        .map((id) => resultEntities[id])
-        .filter((it) => !!it);
+            if (params.categories) entity.categories = result.categories;
+          })
+        )
+    );
+  }
+
+  if (params.types === true || Array.isArray(params.types)) {
+    const prefixes: string[] = Array.isArray(params.types)
+      ? params.types
+      : null;
+    ids.forEach((id) => {
+      if (entities[id] && entities[id].sitelinks) {
+        const enName = entities[id].sitelinks["en"];
+        if (enName) {
+          tasks.push(
+            getEntityTypesByName(enName, prefixes).then((types) => {
+              entities[id].types = types;
+            })
+          );
+        }
+      }
     });
+  }
+
+  await Promise.all(tasks);
+
+  return Object.keys(entities)
+    .map((id) => entities[id])
+    .filter((it) => !!it);
 }

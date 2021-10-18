@@ -48,16 +48,16 @@ export class Api {
         .map((id) => data.query.pages[id])
         .map((data) => {
           const item: ApiResult = {
-            pageid: data["pageid"],
-            title: data["title"]
+            pageid: data.pageid,
+            title: data.title
           };
 
           if (data["categories"]) {
-            item.categories = data["categories"].map((item: any) => item.title);
+            item.categories = data["categories"].map((it: any) => it.title);
           }
 
           if (data["redirects"]) {
-            item.redirects = data["redirects"].map((item: any) => item.title);
+            item.redirects = data["redirects"].map((it: any) => it.title);
           }
 
           if (data["extract"]) {
