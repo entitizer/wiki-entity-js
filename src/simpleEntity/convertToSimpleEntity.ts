@@ -16,7 +16,6 @@ export function convertToSimpleEntity(
   lang: string,
   options?: WikiEntityToEntityOptions
 ): SimpleEntity {
-  // debug('wikiEntityToEntity:', lang, wikiEntity);
   options = options || {};
   const entity: SimpleEntity = {};
   entity.lang = lang.toLowerCase();
@@ -26,6 +25,8 @@ export function convertToSimpleEntity(
   entity.wikiPageId = wikiEntity.pageid;
   entity.about = wikiEntity.extract;
   if (wikiEntity.redirectsToId) entity.redirectsToId = wikiEntity.redirectsToId;
+  if (wikiEntity.redirectsFromId)
+    entity.redirectsFromId = wikiEntity.redirectsFromId;
   if (wikiEntity.types) {
     entity.types = uniq(
       wikiEntity.types.filter((item) => !/:(Thing|Agent)$/.test(item))

@@ -33,4 +33,5 @@ export type SimpleEntity = {
   data?: SimpleEntityData;
   categories?: string[];
   redirectsToId?: string;
+  redirectsFromId?: string;
 };

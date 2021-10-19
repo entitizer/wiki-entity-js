@@ -61,6 +61,7 @@ type WikiEntity = {
     redirects?: string[];
     categories?: string[];
     redirectsToId?: string;
+    redirectsFromId?: string;
 }
 
 type WikidataProperty = {

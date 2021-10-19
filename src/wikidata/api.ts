@@ -51,6 +51,8 @@ export async function getEntities(
     const entity = entities[id];
     if (entity.redirects && entity.redirects.to)
       entity.redirectsToId = entity.redirects.to;
+    if (entity.redirects && entity.redirects.from)
+      entity.redirectsFromId = entity.redirects.from;
     if (!isValidWikiId(id) || ~Object.keys(entities[id]).indexOf("missing")) {
       delete entities[id];
     }

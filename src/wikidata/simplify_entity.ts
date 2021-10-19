@@ -19,6 +19,7 @@ export function simplifyEntity(
   if (data.pageid) entity.pageid = data.pageid;
 
   if (data.redirectsToId) entity.redirectsToId = data.redirectsToId;
+  if (data.redirectsFromId) entity.redirectsFromId = data.redirectsFromId;
 
   if (options.labels !== false && data.labels) {
     entity.labels = simplifyLabels(data.labels);
