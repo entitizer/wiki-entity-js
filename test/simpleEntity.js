@@ -172,7 +172,7 @@ describe("SimpleEntity", function () {
       .then(function (entities) {
         assert.strictEqual(1, entities.length);
         const entity = fromWikiEntity(entities[0], lang);
-        assert.strictEqual("Facebook, Inc.", entity.name);
+        assert.strictEqual("Meta Platforms", entity.name);
         // Organisation
         assert.strictEqual("O", entity.type);
         assert.strictEqual(entity.countryCodes.indexOf("us") > -1, true);

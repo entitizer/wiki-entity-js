@@ -57,11 +57,11 @@ describe("types", function () {
     return index
       .getEntities({
         language: "ro",
-        titles: ["Cabernet-Sauvignon"],
+        titles: ["Cabernet Sauvignon"],
         types: true
       })
       .then(function (results) {
-        assert.ok(results[0].types);
+        assert.ok(results[0]?.types);
       });
   });
   it("work: Alice în Țara Minunilorn", function () {
