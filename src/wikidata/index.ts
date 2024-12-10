@@ -83,7 +83,7 @@ function exploreEntitiesProperties(
         }
       });
     });
-    return null;
+    return entities;
   });
 }
 

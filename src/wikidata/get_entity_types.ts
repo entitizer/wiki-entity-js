@@ -51,9 +51,9 @@ function dbpediaTypes(name: string): Promise<any[]> {
     timeout: 30 * 1000
   })
     .then((data) => data.results && data.results.bindings)
-    .catch((error) => {
+    .catch((error: Error) => {
       console.error(`${error.message}: ${url}`);
-      return [];
+      return [] as any[];
     });
 }
 

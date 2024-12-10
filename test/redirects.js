@@ -57,4 +57,23 @@ describe("redirects", function () {
         assert.equal(results[0].pageid, 3198752);
       });
   });
+
+  it("redirect Brashov to Brașov", function () {
+    return index
+      .getEntities({
+        language: "ro",
+        titles: ["Brashov"],
+        redirects: true
+      })
+      .then(function (results) {
+        assert.equal(results[0].id, "Q82174");
+      });
+  });
+
+  it("mapRedirects Brashov to Brașov", function () {
+    return index.mapRedirects(["Brashov"], "ro").then(function (results) {
+      assert.equal(Object.keys(results).length, 1);
+      assert.equal(results["Brashov"], "Brașov");
+    });
+  });
 });

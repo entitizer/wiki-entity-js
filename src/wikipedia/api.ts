@@ -46,22 +46,22 @@ export class Api {
     if (data && data.query && data.query.pages) {
       return Object.keys(data.query.pages)
         .map((id) => data.query.pages[id])
-        .map((data) => {
+        .map((page) => {
           const item: ApiResult = {
-            pageid: data.pageid,
-            title: data.title
+            pageid: page.pageid,
+            title: page.title
           };
 
-          if (data["categories"]) {
-            item.categories = data["categories"].map((it: any) => it.title);
+          if (page["categories"]) {
+            item.categories = page["categories"].map((it: any) => it.title);
           }
 
-          if (data["redirects"]) {
-            item.redirects = data["redirects"].map((it: any) => it.title);
+          if (page["redirects"]) {
+            item.redirects = page["redirects"].map((it: any) => it.title);
           }
 
-          if (data["extract"]) {
-            item.extract = data["extract"];
+          if (page["extract"]) {
+            item.extract = page["extract"];
           }
 
           return item;
