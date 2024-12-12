@@ -9,42 +9,12 @@ export { WikipediaApi };
 export * from "./simpleEntity";
 export * from "./types";
 
-const getAllEntities = async (params: WikiEntitiesParams) => {
-  const entities = await getWikidataEntities(params);
-  const titles = params.titles || [];
-  if (params.redirect === "no" || !titles.length || params.ids) return entities;
-  const lang = params.language || "en";
-  const notFoundTitle = titles.find(
-    (title) =>
-      !Object.entries(entities).find(([, entity]) => {
-        return (
-          !entity.sitelinks ||
-          !entity.sitelinks[lang] ||
-          entity.sitelinks[lang] !== title
-        );
-      })
-  );
-  if (notFoundTitle.length === 0) return entities;
-
-  const redirects = await mapRedirects(titles, lang);
-  const redirectTitles = [...new Set(Object.values(redirects))];
-  if (redirectTitles.length === 0) return entities;
-
-  const redirectEntities = await getWikidataEntities({
-    ...params,
-    ids: undefined,
-    titles: redirectTitles
-  });
-
-  return { ...entities, ...redirectEntities };
-};
-
 export async function getEntities(
   params: WikiEntitiesParams
 ): Promise<WikiEntity[]> {
   const lang = params.language || "en";
 
-  const entities = await getAllEntities(params);
+  const entities = await getWikidataEntities(params);
 
   const ids = Object.keys(entities).filter((id) => isValidWikiId(id));
 
