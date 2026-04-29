@@ -14,6 +14,24 @@ getEntities({ language: 'en', titles: ['Europe'] }).then(entities => {});
 getEntities({ language: 'en', ids: ['Q46'] }).then(entities => {});
 ```
 
+## User-Agent
+
+[Wikimedia's User-Agent policy](https://meta.wikimedia.org/wiki/User-Agent_policy) requires every client to send an identifying `User-Agent` header. Generic UAs are rate-limited or blocked (HTTP `429`).
+
+Since `0.7.0`, `wiki-entity` sends a default UA built from `package.json`, but you should override it with your app's name and a contact URL/email:
+
+```ts
+import { setUserAgent } from "wiki-entity";
+
+setUserAgent("MyApp/1.0 (https://myapp.example; contact@myapp.example)");
+```
+
+Or set it via environment variable:
+
+```
+WIKI_ENTITY_USER_AGENT="MyApp/1.0 (https://myapp.example; contact@myapp.example)"
+```
+
 ## API
 
 ### getEntities(params): Promise<WikiEntity[]>

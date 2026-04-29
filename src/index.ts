@@ -5,6 +5,7 @@ import { isValidWikiId } from "./utils";
 import { getEntityTypesByName } from "./wikidata/get_entity_types";
 
 export { simplifyEntity } from "./wikidata/simplify_entity";
+export { setUserAgent, getUserAgent } from "./request";
 export { WikipediaApi };
 export * from "./simpleEntity";
 export * from "./types";
