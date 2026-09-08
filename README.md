@@ -112,11 +112,77 @@ implementation detail and may change without a major release.
 
 | Export                                      | Purpose                                                         |
 | ------------------------------------------- | --------------------------------------------------------------- |
-| `simplifyEntity(lang, raw, options?)`       | Flatten a raw `wbgetentities` entity you fetched yourself.      |
 | `queryPages(options)`                       | Query Wikipedia articles directly — batched, continuation-safe. |
+| `simplifyEntity(lang, raw, options?)`       | Flatten a raw `wbgetentities` entity you fetched yourself.      |
 | `getEntityTypesByNames(names, options?)`    | DBpedia ontology types for English Wikipedia titles.            |
 | `setDbpediaEndpoint` / `getDbpediaEndpoint` | Point type lookups at a DBpedia mirror.                         |
 | `setUserAgent` / `getUserAgent`             | The `User-Agent` sent with every request.                       |
+
+#### `queryPages(options)`
+
+Talks to Wikipedia only — no Wikidata lookup, no entity ids. Use it when you
+have article titles and want their summaries, redirects or categories.
+
+```ts
+import { queryPages } from "wiki-entity";
+
+const { pages } = await queryPages({
+  lang: "en",
+  titles: ["Chișinău", "Italy"],
+  extract: 2,
+  followRedirects: true
+});
+
+for (const page of pages) {
+  console.log(page.pageid, page.title, page.extract);
+}
+```
+
+| Option            | Type          | Description                                      |
+| ----------------- | ------------- | ------------------------------------------------ |
+| `lang`            | `string`      | Wikipedia language code, e.g. `"en"`. Required.  |
+| `titles`          | `string[]`    | Article titles. Required; batched automatically. |
+| `extract`         | `number`      | Sentences of the lead section to fetch.          |
+| `redirects`       | `boolean`     | Titles of articles redirecting to each page.     |
+| `categories`      | `boolean`     | Each article's non-hidden categories.            |
+| `followRedirects` | `boolean`     | Resolve titles that are themselves redirects.    |
+| `httpTimeout`     | `number`      | Per-request timeout in milliseconds.             |
+| `signal`          | `AbortSignal` | Cancels every underlying request.                |
+
+It handles the parts of the MediaWiki API that are easy to get wrong: titles are
+batched (50 per request, or 20 when `extract` is set, since the API refuses more
+intro extracts than that), and paginated `continue` responses are followed, so
+long `redirects` and `categories` lists are not truncated at the first page.
+
+**`pages` is not in the order you asked for**, and MediaWiki normalizes titles
+and follows redirects, so the title that comes back may not be the one you sent.
+Two maps tie the results back to your input:
+
+```ts
+const { pages, resolved, requestedTitleOf } = await queryPages({
+  lang: "en",
+  titles: ["Kishinev"],
+  categories: true,
+  followRedirects: true
+});
+
+pages[0].title; // "Chișinău" — the redirect target
+resolved.get("Kishinev"); // { title: "Chișinău", redirected: true }
+requestedTitleOf.get("Chișinău"); // "Kishinev"
+```
+
+Earlier releases had `getExtract`, `getExtracts` and `getRedirects` for this.
+They were thin wrappers that only ever handled one request's worth of titles:
+
+```ts
+// before                                    // now
+getExtracts({ lang, titles, sentences: 2 }); // queryPages({ lang, titles, extract: 2 })
+getExtract(lang, title, 2); // queryPages({ lang, titles: [title], extract: 2 })
+getRedirects(lang, title); // queryPages({ lang, titles: [title], redirects: true })
+```
+
+`getExtract` returned a single object or `null`; the equivalent is
+`(await queryPages({ lang, titles: [title], extract: 2 })).pages[0] ?? null`.
 
 ### Errors
 

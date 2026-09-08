@@ -55,6 +55,32 @@ bugs are fixed, and the generated Wikidata tables have been rebuilt.
 - `getManyEntities` returns `{}` instead of `null` when nothing was found —
   the `null` used to crash the caller.
 
+### Migrating
+
+`getExtract`, `getExtracts` and `getRedirects` are replaced by `queryPages`,
+which batches titles and follows paginated responses instead of sending one
+request and truncating:
+
+```ts
+// before                                    // now
+getExtracts({ lang, titles, sentences: 2 }); // queryPages({ lang, titles, extract: 2 })
+getExtract(lang, title, 2); // queryPages({ lang, titles: [title], extract: 2 })
+getRedirects(lang, title); // queryPages({ lang, titles: [title], redirects: true })
+```
+
+`queryPages` returns `{ pages, resolved, requestedTitleOf }`. `pages` is not in
+the order the titles were given, so use `requestedTitleOf` to map a result back
+to the title you asked for. See the README for details.
+
+The `WikipediaApi` builder maps onto the same call:
+
+```ts
+// before
+new WikipediaApi().extract(2).redirects().query("en", { titles: "A|B" });
+// now
+queryPages({ lang: "en", titles: ["A", "B"], extract: 2, redirects: true });
+```
+
 ### Fixed
 
 - **Labels went missing for a large share of items.** Wikidata has been moving
