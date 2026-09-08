@@ -50,7 +50,7 @@ function buildDefaultUserAgent(): string {
   const homepage =
     typeof __PKG_HOMEPAGE__ === "string"
       ? __PKG_HOMEPAGE__
-      : "https://github.com/entitizer/wiki-entity";
+      : "https://github.com/entitizer/wiki-entity-js";
   return `${name}/${version} (${homepage})`;
 }
 

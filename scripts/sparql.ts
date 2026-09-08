@@ -4,7 +4,7 @@ export const WDQS_ENDPOINT = "https://query.wikidata.org/sparql";
 
 const USER_AGENT =
   process.env["WIKI_ENTITY_USER_AGENT"] ??
-  "wiki-entity-datagen/1.0 (https://github.com/entitizer/wiki-entity)";
+  "wiki-entity-datagen/1.0 (https://github.com/entitizer/wiki-entity-js)";
 
 export interface SparqlBinding {
   [variable: string]: { value?: string; type?: string; datatype?: string };

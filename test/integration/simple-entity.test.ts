@@ -10,7 +10,7 @@ import { getEntityCountryCode } from "../../src/simple-entity/get-entity-country
 beforeAll(() => {
   setUserAgent(
     process.env["WIKI_ENTITY_USER_AGENT"] ??
-      "wiki-entity-tests/1.0 (https://github.com/entitizer/wiki-entity)"
+      "wiki-entity-tests/1.0 (https://github.com/entitizer/wiki-entity-js)"
   );
 });
 

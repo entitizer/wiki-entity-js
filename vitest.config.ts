@@ -4,7 +4,9 @@ export default defineConfig({
   define: {
     __PKG_NAME__: JSON.stringify("wiki-entity"),
     __PKG_VERSION__: JSON.stringify("0.0.0-test"),
-    __PKG_HOMEPAGE__: JSON.stringify("https://github.com/entitizer/wiki-entity")
+    __PKG_HOMEPAGE__: JSON.stringify(
+      "https://github.com/entitizer/wiki-entity-js"
+    )
   },
   test: {
     projects: [
