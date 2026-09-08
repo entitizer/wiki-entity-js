@@ -3,6 +3,9 @@ import { isItemId } from "./utils";
 import { getEntities as getWikidataEntities } from "./wikidata";
 import { getEntityTypesByNames } from "./wikidata/entity-types";
 import { queryPages } from "./wikipedia/api";
+import { convertToSimpleEntity } from "./simple-entity/convert-to-simple-entity";
+import type { ConvertToSimpleEntityOptions } from "./simple-entity/convert-to-simple-entity";
+import type { SimpleEntity } from "./simple-entity/simple-entity";
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -41,9 +44,9 @@ export { ApiError, HttpError, WikiEntityError } from "./errors";
 export {
   convertToSimpleEntity,
   SimpleEntityType,
+  type ConvertToSimpleEntityOptions,
   type SimpleEntity,
-  type SimpleEntityData,
-  type WikiEntityToEntityOptions
+  type SimpleEntityData
 } from "./simple-entity";
 
 export type {
@@ -109,6 +112,32 @@ export async function getEntities(
   await Promise.all(tasks);
 
   return orderEntities(entities, ids, params);
+}
+
+/**
+ * {@link getEntities} followed by {@link convertToSimpleEntity}, in one call.
+ *
+ * The language is taken from `params`, so it cannot drift from the one the
+ * entities were fetched in — passing a different language to
+ * `convertToSimpleEntity` by hand silently mixes languages, because `name` and
+ * `about` come from the fetch while `wikiPageTitle` is read from the sitelinks
+ * of whatever language you passed.
+ *
+ * @example
+ * const entities = await getSimpleEntities({
+ *   language: "en",
+ *   ids: ["Q937"],
+ *   types: true,
+ *   extract: 2
+ * });
+ */
+export async function getSimpleEntities(
+  params: WikiEntitiesParams,
+  options?: ConvertToSimpleEntityOptions
+): Promise<SimpleEntity[]> {
+  const lang = params.language || "en";
+  const entities = await getEntities(params);
+  return entities.map((entity) => convertToSimpleEntity(entity, lang, options));
 }
 
 /** Attach Wikipedia `pageid`, `extract`, `redirects` and `categories`. */

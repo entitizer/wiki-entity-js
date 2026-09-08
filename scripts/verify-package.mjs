@@ -15,6 +15,7 @@ const EXPECTED_EXPORTS = [
   "getEntities",
   "mapRedirects",
   "convertToSimpleEntity",
+  "getSimpleEntities",
   "SimpleEntityType",
   "setUserAgent",
   "getUserAgent",

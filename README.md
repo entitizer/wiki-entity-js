@@ -101,9 +101,32 @@ that really are redirects appear in the result.
 await mapRedirects(["Brashov"], "ro"); // { Brashov: "Brașov" }
 ```
 
+### `getSimpleEntities(params, options?): Promise<SimpleEntity[]>`
+
+`getEntities` followed by `convertToSimpleEntity`, in one call. Takes the same
+params, plus an optional `{ defaultType }`.
+
+```ts
+const entities = await getSimpleEntities({
+  language: "en",
+  ids: ["Q937"],
+  types: true,
+  extract: 2
+});
+
+entities[0].name; // "Albert Einstein"
+entities[0].type; // SimpleEntityType.PERSON
+```
+
+Prefer this over calling the two by hand: it takes the language from `params`,
+so it cannot drift. Converting with a different language than you fetched with
+silently mixes them — `name` and `about` come from the fetch, while
+`wikiPageTitle` is read from the sitelinks of whichever language you passed.
+
 ### `convertToSimpleEntity(wikiEntity, lang, options?): SimpleEntity`
 
-Flattens a `WikiEntity` into a compact, storage-friendly shape.
+Flattens a single `WikiEntity` into the compact shape. Use it when you already
+have entities from `getEntities`.
 
 ### Escape hatches
 
@@ -265,10 +288,11 @@ enum SimpleEntityType {
 }
 
 type SimpleEntity = {
-  lang?: string;
-  wikiDataId?: string;
+  /** Always set. */
+  lang: string;
+  /** Always set. */
+  wikiDataId: string;
   name?: string;
-  abbr?: string;
   description?: string;
   about?: string;
   wikiPageId?: number;

@@ -38,6 +38,12 @@ bugs are fixed, and the generated Wikidata tables have been rebuilt.
   were aliases for `Record<string, T>`. The `Raw*` claim types no longer leak
   either; `simplifyEntity` takes the documented `WikibaseEntityJson` shape.
 - `ApiResult` is renamed `WikipediaPage`.
+- **`SimpleEntity.lang` and `SimpleEntity.wikiDataId` are now required.**
+  `convertToSimpleEntity` always sets both, so typing them optional forced
+  callers into null checks that could never fire.
+- **`SimpleEntity.abbr` is removed.** Nothing in the package ever assigned it.
+- `WikiEntityToEntityOptions` is renamed `ConvertToSimpleEntityOptions`, after
+  the function it belongs to rather than one that no longer exists.
 - **`pageid` now always means the Wikipedia page id.** It used to fall back to
   Wikidata's own page id whenever the Wikipedia lookup was skipped
   (`wikiPageId: false`, no sitelink, missing article), which silently produced a
@@ -123,6 +129,9 @@ queryPages({ lang: "en", titles: ["A", "B"], extract: 2, redirects: true });
 
 ### Added
 
+- `getSimpleEntities(params, options?)` — `getEntities` plus
+  `convertToSimpleEntity` in one call, taking the language from `params` so it
+  cannot diverge from the language the entities were fetched in.
 - `AbortSignal` support on every public call (`signal` param).
 - Automatic retries with exponential backoff and jitter on 429/5xx/network
   errors, honouring `Retry-After`.

@@ -5,5 +5,5 @@ export {
 } from "./simple-entity";
 export {
   convertToSimpleEntity,
-  type WikiEntityToEntityOptions
+  type ConvertToSimpleEntityOptions
 } from "./convert-to-simple-entity";

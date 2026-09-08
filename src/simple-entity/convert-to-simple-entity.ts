@@ -7,7 +7,7 @@ import { getEntityType as getEntityOntologyType } from "./get-entity-type";
 import { getEntityTypeByExtract } from "./get-entity-type-by-extract";
 import type { SimpleEntity, SimpleEntityType } from "./simple-entity";
 
-export type WikiEntityToEntityOptions = {
+export type ConvertToSimpleEntityOptions = {
   /** Used when no type could be detected. */
   defaultType?: SimpleEntityType;
 };
@@ -24,7 +24,7 @@ const GENERIC_TYPE = /:(Thing|Agent)$/;
 export function convertToSimpleEntity(
   wikiEntity: WikiEntity,
   lang: string,
-  options: WikiEntityToEntityOptions = {}
+  options: ConvertToSimpleEntityOptions = {}
 ): SimpleEntity {
   const entity: SimpleEntity = {
     lang: lang.toLowerCase(),
@@ -74,7 +74,7 @@ function detectType(
   wikiEntity: WikiEntity,
   entity: SimpleEntity,
   lang: string,
-  options: WikiEntityToEntityOptions
+  options: ConvertToSimpleEntityOptions
 ): SimpleEntityType | undefined {
   return (
     getEntityOntologyType(wikiEntity) ??

@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getEntities, mapRedirects } from "../../src/index";
+import {
+  getEntities,
+  getSimpleEntities,
+  mapRedirects,
+  SimpleEntityType
+} from "../../src/index";
 import {
   installFetchMock,
   type MockResponseInit,
@@ -423,5 +428,70 @@ describe("mapRedirects", () => {
     const mock = routeFetch({});
     await expect(mapRedirects([], "en")).resolves.toEqual({});
     expect(mock.calls).toHaveLength(0);
+  });
+});
+
+describe("getSimpleEntities", () => {
+  it("converts using the language the entities were fetched in", async () => {
+    routeFetch({
+      wikidata: () => ({
+        json: {
+          entities: {
+            Q21197: {
+              ...wikidataEntity("Q21197", {
+                en: "Chișinău",
+                ro: "Chișinău (oraș)"
+              }),
+              labels: { ro: { language: "ro", value: "Chișinău" } }
+            }
+          }
+        }
+      })
+    });
+
+    const [entity] = await getSimpleEntities({
+      language: "ro",
+      ids: ["Q21197"],
+      wikiPageId: false
+    });
+
+    expect(entity?.lang).toBe("ro");
+    expect(entity?.wikiDataId).toBe("Q21197");
+    expect(entity?.name).toBe("Chișinău");
+    // Read from the ro sitelink, not the en one.
+    expect(entity?.wikiPageTitle).toBe("Chișinău (oraș)");
+  });
+
+  it("defaults to English when no language is given", async () => {
+    routeFetch({
+      wikidata: () => ({
+        json: { entities: { Q38: wikidataEntity("Q38", { en: "Italy" }) } }
+      })
+    });
+
+    const [entity] = await getSimpleEntities({
+      ids: ["Q38"],
+      wikiPageId: false
+    });
+    expect(entity?.lang).toBe("en");
+  });
+
+  it("passes options through to the converter", async () => {
+    routeFetch({
+      wikidata: () => ({
+        json: { entities: { Q1: wikidataEntity("Q1") } }
+      })
+    });
+
+    const [entity] = await getSimpleEntities(
+      { ids: ["Q1"], wikiPageId: false },
+      { defaultType: SimpleEntityType.WORK }
+    );
+    expect(entity?.type).toBe(SimpleEntityType.WORK);
+  });
+
+  it("returns an empty array when nothing was found", async () => {
+    routeFetch({});
+    await expect(getSimpleEntities({ ids: ["Q1"] })).resolves.toEqual([]);
   });
 });

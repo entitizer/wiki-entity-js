@@ -25,10 +25,11 @@ export const SIMPLE_ENTITY_TYPES: readonly SimpleEntityType[] = [
 export type SimpleEntityData = { [prop: string]: string[] };
 
 export type SimpleEntity = {
-  lang?: string;
-  wikiDataId?: string;
+  /** Language the entity was resolved in. Always set. */
+  lang: string;
+  /** Wikidata item id. Always set. */
+  wikiDataId: string;
   name?: string;
-  abbr?: string;
   description?: string;
   about?: string;
   wikiPageId?: number;
