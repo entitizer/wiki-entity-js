@@ -1,11 +1,10 @@
 import request from "../request";
-import type { StringPlainObject } from "../types";
 
 /**
  * Ontology namespaces recognised in DBpedia `rdf:type` values, mapped to the
  * short prefix used in `WikiEntity.types`.
  */
-const PREFIXES_MAP: StringPlainObject = {
+const PREFIXES_MAP: Record<string, string> = {
   "http://www.ontologydesignpatterns.org/ont/dul/DUL.owl#": "dul",
   "http://dbpedia.org/ontology/": "dbo",
   "http://www.w3.org/2002/07/owl#": "owl",
@@ -21,11 +20,6 @@ const PREFIXES_REG = new RegExp(
     .map((key) => key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
     .join("|")})`
 );
-
-/** Every prefix this package can return in `WikiEntity.types`. */
-export const KNOWN_TYPE_PREFIXES: string[] = [
-  ...new Set(Object.values(PREFIXES_MAP))
-];
 
 let endpoint = "https://dbpedia.org/sparql";
 

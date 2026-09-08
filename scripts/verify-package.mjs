@@ -10,24 +10,22 @@ import assert from "node:assert/strict";
 
 const require = createRequire(import.meta.url);
 
+/** The complete public surface. Keep in sync with src/index.ts. */
 const EXPECTED_EXPORTS = [
   "getEntities",
   "mapRedirects",
   "convertToSimpleEntity",
-  "simplifyEntity",
-  "simplifyClaims",
-  "queryPages",
-  "getEntityTypesByName",
-  "getEntityTypesByNames",
+  "SimpleEntityType",
   "setUserAgent",
   "getUserAgent",
   "setDbpediaEndpoint",
-  "WikipediaApi",
-  "SimpleEntityType",
+  "getDbpediaEndpoint",
   "WikiEntityError",
   "HttpError",
   "ApiError",
-  "InvalidParamsError"
+  "simplifyEntity",
+  "queryPages",
+  "getEntityTypesByNames"
 ];
 
 for (const file of ["dist/index.js", "dist/index.cjs", "dist/index.d.ts"]) {
@@ -64,7 +62,22 @@ assert.equal(
   "entity type tables did not survive the build"
 );
 
+// The surface is deliberately small: catch anything re-exported by accident.
+for (const [label, build] of [
+  ["ESM", esm],
+  ["CJS", cjs]
+]) {
+  const extra = Object.keys(build).filter(
+    (name) => !EXPECTED_EXPORTS.includes(name) && name !== "default"
+  );
+  assert.deepEqual(
+    extra,
+    [],
+    `${label} build exports unexpected names: ${extra.join(", ")}`
+  );
+}
+
 console.log(
-  `OK — ESM and CJS builds expose ${EXPECTED_EXPORTS.length} exports`
+  `OK — ESM and CJS builds expose exactly ${EXPECTED_EXPORTS.length} exports`
 );
 console.log(`Default User-Agent: ${ua}`);

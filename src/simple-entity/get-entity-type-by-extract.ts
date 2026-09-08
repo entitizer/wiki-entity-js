@@ -1,4 +1,3 @@
-import type { PlainObject } from "../types";
 import { SimpleEntityType } from "./simple-entity";
 
 /**
@@ -17,7 +16,7 @@ type InfoRegType = { reg: RegExp; type: SimpleEntityType };
  * Last-resort type detection from the opening words of a Wikipedia extract.
  * Only languages with curated patterns are covered.
  */
-const MAP: PlainObject<InfoRegType[]> = {
+const MAP: Record<string, InfoRegType[]> = {
   ro: [
     {
       reg: word("(este|a fost) un (sat|oraș|orășel|județ|raion|municipiu)"),

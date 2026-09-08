@@ -68,24 +68,29 @@ Fetches entities from Wikidata and enriches them from Wikipedia and DBpedia.
 Results follow the order of the requested `ids`/`titles`; entities that do not
 exist are omitted.
 
-| Param         | Type                  | Default | Description                                                                                    |
-| ------------- | --------------------- | ------- | ---------------------------------------------------------------------------------------------- |
-| `ids`         | `string[]`            | —       | Wikidata ids, max 500. Either this or `titles` is required.                                    |
-| `titles`      | `string[]`            | —       | Wikipedia article titles in `language`, max 500.                                               |
-| `language`    | `string`              | `"en"`  | Language of `titles` and of the resulting `label`/`description`.                               |
-| `languages`   | `string[]`            | —       | Extra languages to populate `labels` with.                                                     |
-| `props`       | `string[]`            | all     | `info`, `sitelinks`, `aliases`, `labels`, `descriptions`, `claims`, `datatype`.                |
-| `claims`      | `string`              | `none`  | `none`, `item`, `property` or `all` — how deeply to resolve claim labels.                      |
-| `extract`     | `number`              | —       | Sentences of the Wikipedia lead section to fetch.                                              |
-| `types`       | `boolean \| string[]` | `false` | `true` for DBpedia ontology types, or an array of prefixes to keep (e.g. `["dbo", "schema"]`). |
-| `redirects`   | `boolean`             | `false` | Titles of Wikipedia articles redirecting to the entity.                                        |
-| `categories`  | `boolean`             | `false` | The article's non-hidden categories.                                                           |
-| `wikiPageId`  | `boolean`             | `true`  | Fetch the Wikipedia `pageid`.                                                                  |
-| `httpTimeout` | `number`              | `15000` | Per-request timeout in milliseconds.                                                           |
-| `signal`      | `AbortSignal`         | —       | Cancels every underlying request.                                                              |
+| Param                   | Type                  | Default | Description                                                                                    |
+| ----------------------- | --------------------- | ------- | ---------------------------------------------------------------------------------------------- |
+| `ids`                   | `string[]`            | —       | Wikidata ids, max 500. Either this or `titles` is required.                                    |
+| `titles`                | `string[]`            | —       | Wikipedia article titles in `language`, max 500.                                               |
+| `language`              | `string`              | `"en"`  | Language of `titles` and of the resulting `label`/`description`.                               |
+| `languages`             | `string[]`            | —       | Extra languages to populate `labels` with.                                                     |
+| `props`                 | `string[]`            | all     | `info`, `sitelinks`, `aliases`, `labels`, `descriptions`, `claims`, `datatype`.                |
+| `claims`                | `string`              | `none`  | `none`, `item`, `property` or `all` — how deeply to resolve claim labels.                      |
+| `extract`               | `number`              | —       | Sentences of the Wikipedia lead section to fetch.                                              |
+| `types`                 | `boolean \| string[]` | `false` | `true` for DBpedia ontology types, or an array of prefixes to keep (e.g. `["dbo", "schema"]`). |
+| `redirects`             | `boolean`             | `false` | Titles of _Wikipedia articles_ that redirect to this entity.                                   |
+| `categories`            | `boolean`             | `false` | The article's non-hidden categories.                                                           |
+| `wikiPageId`            | `boolean`             | `true`  | Fetch the Wikipedia `pageid`.                                                                  |
+| `httpTimeout`           | `number`              | `15000` | Per-request timeout in milliseconds.                                                           |
+| `signal`                | `AbortSignal`         | —       | Cancels every underlying request.                                                              |
+| `followEntityRedirects` | `boolean`             | `true`  | Resolve _Wikidata items_ that were merged into another item.                                   |
 
 `extract`, `redirects` and `categories` need the entity to have a sitelink for
 `language`, so keep `sitelinks` in `props` when you narrow it.
+
+Note `redirects` and `followEntityRedirects` are unrelated: the first fetches
+the titles of Wikipedia articles pointing at this entity, the second controls
+whether a merged-away Wikidata item resolves to the item that replaced it.
 
 ### `mapRedirects(titles, lang): Promise<Record<string, string>>`
 
@@ -100,18 +105,18 @@ await mapRedirects(["Brashov"], "ro"); // { Brashov: "Brașov" }
 
 Flattens a `WikiEntity` into a compact, storage-friendly shape.
 
-### Lower-level helpers
+### Escape hatches
 
-| Export                                           | Purpose                                                        |
-| ------------------------------------------------ | -------------------------------------------------------------- |
-| `simplifyEntity(lang, raw, options?)`            | Flatten one raw `wbgetentities` entity.                        |
-| `simplifyClaims(raw, options?)`                  | Flatten a raw `claims` object.                                 |
-| `exploreEntityClaims(claims, params)`            | Attach labels to the item values inside a claim tree.          |
-| `queryPages(options)`                            | Query Wikipedia pages by title, batched and continuation-safe. |
-| `getExtract` / `getExtracts` / `getRedirects`    | Direct Wikipedia lookups.                                      |
-| `getEntityTypesByName` / `getEntityTypesByNames` | DBpedia ontology types.                                        |
-| `setDbpediaEndpoint` / `getDbpediaEndpoint`      | Point type lookups at a DBpedia mirror.                        |
-| `setUserAgent` / `getUserAgent`                  | The `User-Agent` sent with every request.                      |
+For what `getEntities` does not cover. Everything else in the package is an
+implementation detail and may change without a major release.
+
+| Export                                      | Purpose                                                         |
+| ------------------------------------------- | --------------------------------------------------------------- |
+| `simplifyEntity(lang, raw, options?)`       | Flatten a raw `wbgetentities` entity you fetched yourself.      |
+| `queryPages(options)`                       | Query Wikipedia articles directly — batched, continuation-safe. |
+| `getEntityTypesByNames(names, options?)`    | DBpedia ontology types for English Wikipedia titles.            |
+| `setDbpediaEndpoint` / `getDbpediaEndpoint` | Point type lookups at a DBpedia mirror.                         |
+| `setUserAgent` / `getUserAgent`             | The `User-Agent` sent with every request.                       |
 
 ### Errors
 
@@ -120,7 +125,8 @@ All errors extend `WikiEntityError`:
 - `HttpError` — non-2xx status, network failure or timeout. `status`, `url` and
   `retryable` describe it; 429 and 5xx are retried automatically.
 - `ApiError` — the request succeeded but MediaWiki reported an error (`code`).
-- `InvalidParamsError` — bad arguments.
+
+Bad arguments throw a plain `TypeError`.
 
 DBpedia types are best-effort enrichment: if the endpoint is unreachable,
 `types` is simply left unset instead of failing the call.

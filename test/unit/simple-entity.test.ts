@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
   convertToSimpleEntity,
-  getEntityCountryCode,
-  getEntityData,
-  getEntityInstanceType,
-  getEntityTypeByExtract,
-  getEntityTypeByOntology,
   SimpleEntityType
 } from "../../src/simple-entity";
+// Internal helpers: not part of the public API, tested through their modules.
+import { getEntityCountryCode } from "../../src/simple-entity/get-entity-country";
+import { getEntityData } from "../../src/simple-entity/get-entity-data";
+import { getEntityType as getEntityInstanceType } from "../../src/simple-entity/get-entity-instance-type";
+import { getEntityType as getEntityTypeByOntology } from "../../src/simple-entity/get-entity-type";
+import { getEntityTypeByExtract } from "../../src/simple-entity/get-entity-type-by-extract";
 import type { WikiEntity } from "../../src/types";
 
 const itemClaim = (id: string, values: string[]) => ({

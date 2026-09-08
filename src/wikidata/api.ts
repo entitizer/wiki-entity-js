@@ -1,4 +1,4 @@
-import { ApiError, InvalidParamsError } from "../errors";
+import { ApiError } from "../errors";
 import request from "../request";
 import { WIKIDATA_PROPS, type WikidataEntitiesParams } from "../types";
 import { chunk, isEntityId } from "../utils";
@@ -48,7 +48,7 @@ export async function fetchEntities(
       normalize: titles?.length === 1 ? "1" : undefined,
       props: params.props ?? [...WIKIDATA_PROPS],
       languages: withMulLanguage(params.languages),
-      redirects: params.redirect || "yes",
+      redirects: params.followEntityRedirects === false ? "no" : "yes",
       format: "json",
       formatversion: "2"
     },
@@ -252,7 +252,7 @@ export function validateParams(params: WikidataEntitiesParams): void {
   const hasIds = Array.isArray(params.ids) && params.ids.length > 0;
   const hasTitles = Array.isArray(params.titles) && params.titles.length > 0;
   if (!hasIds && !hasTitles) {
-    throw new InvalidParamsError(
+    throw new TypeError(
       "Invalid params: a non-empty `ids` or `titles` array is required"
     );
   }

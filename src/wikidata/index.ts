@@ -136,7 +136,7 @@ async function fetchEntityMeta(
       language: lang,
       languages: params.languages,
       props: [...META_PROPS],
-      redirect: params.redirect,
+      followEntityRedirects: params.followEntityRedirects,
       httpTimeout: params.httpTimeout,
       signal: params.signal
     });

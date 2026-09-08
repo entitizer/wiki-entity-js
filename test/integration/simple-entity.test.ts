@@ -2,10 +2,10 @@ import { beforeAll, describe, expect, it } from "vitest";
 import {
   convertToSimpleEntity,
   getEntities,
-  getEntityCountryCode,
   setUserAgent,
   SimpleEntityType
 } from "../../src/index";
+import { getEntityCountryCode } from "../../src/simple-entity/get-entity-country";
 
 beforeAll(() => {
   setUserAgent(

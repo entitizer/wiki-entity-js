@@ -1,5 +1,5 @@
-import type { PlainObject, WikidataEntity } from "../types";
-import type { RawLangValue, RawWikidataEntity } from "./raw-types";
+import type { WikidataEntity } from "../types";
+import type { RawClaim, RawLangValue } from "./raw-types";
 import { simplifyClaims } from "./simplify-claims";
 
 export type SimplifyEntityOptionsType = {
@@ -25,9 +25,27 @@ export type SimplifyEntityOptionsType = {
  */
 export const MUL_LANGUAGE = "mul";
 
+/**
+ * One entity exactly as `action=wbgetentities` returns it. Every field is
+ * optional: the API only sends the props that were asked for.
+ */
+export interface WikibaseEntityJson {
+  id?: string;
+  pageid?: number;
+  /** Present on property (`P…`) entities only. */
+  datatype?: string;
+  labels?: Record<string, { value?: string; language?: string }>;
+  descriptions?: Record<string, { value?: string; language?: string }>;
+  aliases?: Record<string, { value?: string; language?: string }[]>;
+  sitelinks?: Record<string, { title?: string; badges?: string[] }>;
+  claims?: Record<string, unknown[]>;
+  redirectsToId?: string;
+  redirectsFromId?: string;
+}
+
 export function simplifyEntity(
   lang: string,
-  data: RawWikidataEntity,
+  data: WikibaseEntityJson,
   options: SimplifyEntityOptionsType = {}
 ): WikidataEntity {
   const entity: WikidataEntity = { id: data.id ?? "" };
@@ -64,7 +82,7 @@ export function simplifyEntity(
   }
 
   if (options.claims !== false && data.claims) {
-    entity.claims = simplifyClaims(data.claims, {
+    entity.claims = simplifyClaims(data.claims as Record<string, RawClaim[]>, {
       keepDeprecated: options.keepDeprecatedClaims ?? false
     });
   }
@@ -74,8 +92,8 @@ export function simplifyEntity(
 
 export function simplifyAliases(
   data: Record<string, RawLangValue[]> | null | undefined
-): PlainObject<string[]> {
-  const result: PlainObject<string[]> = {};
+): Record<string, string[]> {
+  const result: Record<string, string[]> = {};
   if (!data) return result;
   for (const lang of Object.keys(data)) {
     const values = data[lang];
@@ -89,21 +107,21 @@ export function simplifyAliases(
 
 export function simplifyDescriptions(
   data: Record<string, RawLangValue> | null | undefined
-): PlainObject<string> {
+): Record<string, string> {
   return simplifyLangValues(data);
 }
 
 export function simplifyLabels(
   data: Record<string, RawLangValue> | null | undefined
-): PlainObject<string> {
+): Record<string, string> {
   return simplifyLangValues(data);
 }
 
 /** Map `{ enwiki: { title } }` to `{ en: title }`. */
 export function simplifySitelinks(
   data: Record<string, { title?: string }> | null | undefined
-): PlainObject<string> {
-  const result: PlainObject<string> = {};
+): Record<string, string> {
+  const result: Record<string, string> = {};
   if (!data) return result;
   for (const site of Object.keys(data)) {
     const title = data[site]?.title;
@@ -114,8 +132,8 @@ export function simplifySitelinks(
 
 function simplifyLangValues(
   data: Record<string, RawLangValue> | null | undefined
-): PlainObject<string> {
-  const result: PlainObject<string> = {};
+): Record<string, string> {
+  const result: Record<string, string> = {};
   if (!data) return result;
   for (const lang of Object.keys(data)) {
     const value = data[lang]?.value;

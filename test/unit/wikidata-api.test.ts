@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ApiError, InvalidParamsError } from "../../src/errors";
+import { ApiError } from "../../src/errors";
 import { getEntities, getManyEntities } from "../../src/wikidata/api";
 import { installFetchMock } from "./helpers/mock-fetch";
 
@@ -9,12 +9,10 @@ const entity = (id: string) => ({ id, type: "item", pageid: 1 });
 
 describe("validateParams", () => {
   it("requires a non-empty ids or titles array", async () => {
-    await expect(getEntities({})).rejects.toBeInstanceOf(InvalidParamsError);
-    await expect(getEntities({ ids: [] })).rejects.toBeInstanceOf(
-      InvalidParamsError
-    );
+    await expect(getEntities({})).rejects.toBeInstanceOf(TypeError);
+    await expect(getEntities({ ids: [] })).rejects.toBeInstanceOf(TypeError);
     await expect(getManyEntities({ titles: [] })).rejects.toBeInstanceOf(
-      InvalidParamsError
+      TypeError
     );
   });
 });

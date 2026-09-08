@@ -15,9 +15,29 @@ bugs are fixed, and the generated Wikidata tables have been rebuilt.
   platform `fetch`.
 - **Dual ESM/CommonJS build.** The package now has an `exports` map and ships
   from `dist/`. Deep imports such as
-  `require("wiki-entity/lib/simpleEntity/getEntityCountry")` no longer resolve —
-  everything is exported from the package root instead
-  (`getEntityCountryCode`, `getEntityData`, `getEntityTypeByExtract`, …).
+  `require("wiki-entity/lib/simpleEntity/getEntityCountry")` no longer resolve.
+- **The public API is down to 14 exports.** It had grown to 40, many of which
+  were internals with no standalone use. Removed: the array helpers (`chunk`,
+  `uniq`), the id predicates (`isItemId`, `isPropertyId`, `isEntityId`), the
+  claim renderers (`stringifyTime`, `stringifyCoordinates`), the pieces of
+  `convertToSimpleEntity` (`getEntityData`, `getEntityCountryCode`,
+  `getEntityTypeByExtract`, and the two `getEntityType` variants), the
+  low-level claim simplifiers (`simplifyClaim`, `simplifyClaims`,
+  `simplifyPropertyClaims`, `exploreEntityClaims`), the deprecated
+  `WikipediaApi` builder and its `getExtract`/`getExtracts`/`getRedirects`
+  wrappers (use `queryPages`), the singular `getEntityTypesByName` (use
+  `getEntityTypesByNames`), and the constants `KNOWN_TYPE_PREFIXES`,
+  `SIMPLE_ENTITY_TYPES` and `WIKIDATA_PROPS`.
+- **`redirect` is now `followEntityRedirects: boolean`.** `redirect: "yes"|"no"`
+  sat one letter away from the unrelated `redirects: boolean`, which fetches
+  Wikipedia redirect titles. There is no alias; rename at the call site.
+- **`InvalidParamsError` is gone**; bad arguments now throw a plain `TypeError`.
+- **`WikidataPropsParam` (enum) and `WIKIDATA_PROPS` (const) are gone.** `props`
+  takes plain strings, typed by the `WikidataProp` union.
+- **`PlainObject`, `AnyPlainObject` and `StringPlainObject` are gone** — they
+  were aliases for `Record<string, T>`. The `Raw*` claim types no longer leak
+  either; `simplifyEntity` takes the documented `WikibaseEntityJson` shape.
+- `ApiResult` is renamed `WikipediaPage`.
 - **`pageid` now always means the Wikipedia page id.** It used to fall back to
   Wikidata's own page id whenever the Wikipedia lookup was skipped
   (`wikiPageId: false`, no sitelink, missing article), which silently produced a

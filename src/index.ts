@@ -4,49 +4,67 @@ import { getEntities as getWikidataEntities } from "./wikidata";
 import { getEntityTypesByNames } from "./wikidata/entity-types";
 import { queryPages } from "./wikipedia/api";
 
-export { simplifyEntity } from "./wikidata/simplify-entity";
-export type { SimplifyEntityOptionsType } from "./wikidata/simplify-entity";
+// ---------------------------------------------------------------------------
+// Public API
+//
+// Deliberately small. Anything not listed here is an implementation detail and
+// may change without a major release.
+// ---------------------------------------------------------------------------
+
+/** Flatten a raw `wbgetentities` entity — for JSON you fetched yourself. */
 export {
-  simplifyClaim,
-  simplifyClaims,
-  simplifyPropertyClaims,
-  stringifyCoordinates,
-  stringifyTime
-} from "./wikidata/simplify-claims";
-export type { SimplifyClaimsOptions } from "./wikidata/simplify-claims";
-export { exploreEntityClaims } from "./wikidata";
+  simplifyEntity,
+  type SimplifyEntityOptionsType,
+  type WikibaseEntityJson
+} from "./wikidata/simplify-entity";
+
+/** Query Wikipedia articles directly, without going through Wikidata. */
 export {
-  getEntityTypesByName,
+  queryPages,
+  type QueryPagesOptions,
+  type QueryPagesResult,
+  type ResolvedTitle,
+  type WikipediaPage
+} from "./wikipedia/api";
+
+/** Resolve DBpedia ontology types for English Wikipedia titles. */
+export {
   getEntityTypesByNames,
   getDbpediaEndpoint,
   setDbpediaEndpoint,
-  KNOWN_TYPE_PREFIXES
+  type EntityTypesOptions
 } from "./wikidata/entity-types";
+
 export { setUserAgent, getUserAgent } from "./request";
+export { ApiError, HttpError, WikiEntityError } from "./errors";
+
 export {
-  ApiError,
-  HttpError,
-  InvalidParamsError,
-  WikiEntityError
-} from "./errors";
-export {
-  Api as WikipediaApi,
-  getExtract,
-  getExtracts,
-  getRedirects,
-  queryPages
-} from "./wikipedia/api";
+  convertToSimpleEntity,
+  SimpleEntityType,
+  type SimpleEntity,
+  type SimpleEntityData,
+  type WikiEntityToEntityOptions
+} from "./simple-entity";
+
 export type {
-  ApiResult,
-  ExtractType,
-  ExtractsParamsType,
-  QueryPagesOptions,
-  QueryPagesResult,
-  ResolvedTitle
-} from "./wikipedia/api";
-export { chunk, isEntityId, isItemId, isPropertyId, uniq } from "./utils";
-export * from "./simple-entity";
-export * from "./types";
+  ParamClaimsType,
+  WikiEntities,
+  WikiEntitiesParams,
+  WikiEntity,
+  WikidataBaseEntity,
+  WikidataEntities,
+  WikidataEntitiesParams,
+  WikidataEntity,
+  WikidataEntityClaims,
+  WikidataGlobeCoordinateValue,
+  WikidataMonolingualTextValue,
+  WikidataProp,
+  WikidataProperty,
+  WikidataPropertyValue,
+  WikidataQuantityValue,
+  WikidataRank,
+  WikidataTimeValue
+} from "./types";
 
 /**
  * Fetch entities from Wikidata, optionally enriched with data from Wikipedia

@@ -1,5 +1,3 @@
-export type { PlainObject, AnyPlainObject, StringPlainObject } from "./types";
-
 /** Remove duplicates, preserving first-seen order. */
 export function uniq<T>(items: readonly T[]): T[] {
   return [...new Set(items)];
@@ -29,9 +27,3 @@ export function isPropertyId(id: string): boolean {
 export function isEntityId(id: string): boolean {
   return isItemId(id) || isPropertyId(id);
 }
-
-/**
- * `true` for a Wikidata item id such as `Q42`.
- * @deprecated Use {@link isItemId}, or {@link isEntityId} to also accept properties.
- */
-export const isValidWikiId = isItemId;

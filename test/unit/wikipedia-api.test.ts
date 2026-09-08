@@ -1,11 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ApiError } from "../../src/errors";
-import {
-  Api,
-  getExtract,
-  getRedirects,
-  queryPages
-} from "../../src/wikipedia/api";
+import { queryPages } from "../../src/wikipedia/api";
 import { installFetchMock } from "./helpers/mock-fetch";
 
 afterEach(() => vi.unstubAllGlobals());
@@ -191,54 +186,5 @@ describe("queryPages", () => {
     await expect(
       queryPages({ lang: "en", titles: ["A"] })
     ).rejects.toBeInstanceOf(ApiError);
-  });
-});
-
-describe("Api (builder)", () => {
-  it("chains prop selectors and splits the piped titles", async () => {
-    const mock = installFetchMock(() => ({ json: { query: { pages: [] } } }));
-
-    await new Api()
-      .extract(2)
-      .redirects()
-      .categories()
-      .query("en", { titles: "A|B" });
-
-    expect(mock.paramsOf(0).get("titles")).toBe("A|B");
-    expect(mock.paramsOf(0).get("prop")).toBe("extracts|redirects|categories");
-  });
-
-  it("follows redirects when the legacy `redirects: yes` param is set", async () => {
-    const mock = installFetchMock(() => ({ json: { query: { pages: [] } } }));
-    await new Api().query("en", { titles: "A", redirects: "yes" });
-    expect(mock.paramsOf(0).get("redirects")).toBe("1");
-  });
-});
-
-describe("getExtract / getRedirects", () => {
-  it("returns the single extract, or null", async () => {
-    installFetchMock(() => ({
-      json: { query: { pages: [page(1, "A", { extract: "About A." })] } }
-    }));
-    await expect(getExtract("en", "A")).resolves.toEqual({
-      pageid: 1,
-      title: "A",
-      extract: "About A."
-    });
-
-    vi.unstubAllGlobals();
-    installFetchMock(() => ({ json: { query: { pages: [] } } }));
-    await expect(getExtract("en", "A")).resolves.toBeNull();
-  });
-
-  it("returns the redirect titles of a page", async () => {
-    installFetchMock(() => ({
-      json: {
-        query: {
-          pages: [page(1, "A", { redirects: [{ title: "A1" }] })]
-        }
-      }
-    }));
-    await expect(getRedirects("en", "A")).resolves.toEqual(["A1"]);
   });
 });

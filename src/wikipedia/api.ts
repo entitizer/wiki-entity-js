@@ -1,6 +1,5 @@
 import { ApiError } from "../errors";
 import request from "../request";
-import type { StringPlainObject } from "../types";
 import { chunk } from "../utils";
 
 const API_URL = "https://$lang.wikipedia.org/w/api.php";
@@ -18,25 +17,15 @@ const MAX_CONTINUATIONS = 20;
 export const apiUrl = (lang: string): string =>
   API_URL.replace("$lang", encodeURIComponent(lang));
 
-export type ExtractType = {
+/** One Wikipedia article, with whatever extras were requested. */
+export type WikipediaPage = {
   pageid: number;
   title: string;
-  extract: string;
-};
-
-export type ExtractsParamsType = {
-  lang: string;
-  titles: string[];
-  sentences?: number;
-  httpTimeout?: number;
-  signal?: AbortSignal;
-};
-
-export type ApiResult = {
-  pageid: number;
-  title: string;
+  /** Lead-section summary, when `extract` was requested. */
   extract?: string;
+  /** Non-hidden category titles, when `categories` was requested. */
   categories?: string[];
+  /** Titles of articles redirecting here, when `redirects` was requested. */
   redirects?: string[];
 };
 
@@ -64,7 +53,7 @@ export interface ResolvedTitle {
 }
 
 export interface QueryPagesResult {
-  pages: ApiResult[];
+  pages: WikipediaPage[];
   /** Requested title -> where it ended up. */
   resolved: Map<string, ResolvedTitle>;
   /**
@@ -104,7 +93,7 @@ export async function queryPages(
 ): Promise<QueryPagesResult> {
   const titles = [...new Set(options.titles)].filter((t) => t.length > 0);
 
-  const pages = new Map<string, ApiResult>();
+  const pages = new Map<string, WikipediaPage>();
   const resolved = new Map<string, ResolvedTitle>();
   const requestedTitleOf = new Map<string, string>();
 
@@ -224,7 +213,7 @@ function buildQueryParams(
 }
 
 function mergePages(
-  pages: Map<string, ApiResult>,
+  pages: Map<string, WikipediaPage>,
   raw: RawPage[] | Record<string, RawPage> | undefined
 ): void {
   if (!raw) return;
@@ -259,118 +248,4 @@ function mergeTitles(
     .map((it) => it.title)
     .filter((title): title is string => typeof title === "string");
   return existing ? [...new Set([...existing, ...titles])] : titles;
-}
-
-/**
- * Builder around {@link queryPages}, kept for backwards compatibility.
- *
- * Only `titles` and `redirects` are read from the raw query string; the other
- * MediaWiki parameters are managed by {@link queryPages}, which batches and
- * pages through continuations. Prefer calling `queryPages` directly.
- *
- * @example
- * const pages = await new Api().extract(2).redirects().query("en", { titles: "Europe" });
- */
-export class Api {
-  private options: Partial<QueryPagesOptions> = {};
-
-  constructor(
-    private qs: StringPlainObject = {},
-    private httpTimeout?: number
-  ) {
-    this.qs = { ...qs };
-  }
-
-  /** Request `sentences` sentences of the lead section. */
-  extract(sentences = 3): this {
-    this.options.extract = sentences;
-    return this;
-  }
-
-  /** Request the titles of articles redirecting to each page. */
-  redirects(): this {
-    this.options.redirects = true;
-    return this;
-  }
-
-  /** Request each article's non hidden categories. */
-  categories(): this {
-    this.options.categories = true;
-    return this;
-  }
-
-  /** Run the query. `qs` may carry `titles` (pipe separated) and `redirects`. */
-  async query(lang: string, qs?: StringPlainObject): Promise<ApiResult[]> {
-    if (qs) this.qs = { ...this.qs, ...qs };
-
-    const titles = (this.qs["titles"] ?? "")
-      .split("|")
-      .map((title) => title.trim())
-      .filter((title) => title.length > 0);
-
-    const result = await queryPages({
-      lang,
-      titles,
-      ...this.options,
-      followRedirects:
-        this.options.followRedirects ?? this.qs["redirects"] === "yes",
-      ...(this.httpTimeout === undefined
-        ? {}
-        : { httpTimeout: this.httpTimeout })
-    });
-
-    return result.pages;
-  }
-}
-
-/** Fetch the lead extract of several articles at once. */
-export async function getExtracts(
-  params: ExtractsParamsType
-): Promise<ExtractType[]> {
-  const { pages } = await queryPages({
-    lang: params.lang,
-    titles: params.titles,
-    extract: params.sentences ?? 3,
-    followRedirects: true,
-    ...(params.httpTimeout === undefined
-      ? {}
-      : { httpTimeout: params.httpTimeout }),
-    ...(params.signal === undefined ? {} : { signal: params.signal })
-  });
-
-  return pages
-    .filter((page) => typeof page.extract === "string")
-    .map((page) => ({
-      pageid: page.pageid,
-      title: page.title,
-      extract: page.extract as string
-    }));
-}
-
-/** Fetch the lead extract of a single article. */
-export async function getExtract(
-  lang: string,
-  title: string,
-  sentences?: number
-): Promise<ExtractType | null> {
-  const extracts = await getExtracts({
-    lang,
-    titles: [title],
-    ...(sentences === undefined ? {} : { sentences })
-  });
-  return extracts[0] ?? null;
-}
-
-/** Fetch the titles of every article redirecting to `title`. */
-export async function getRedirects(
-  lang: string,
-  title: string
-): Promise<string[]> {
-  const { pages } = await queryPages({
-    lang,
-    titles: [title],
-    redirects: true,
-    followRedirects: true
-  });
-  return pages[0]?.redirects ?? [];
 }

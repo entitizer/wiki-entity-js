@@ -1,8 +1,8 @@
-import type { PlainObject, WikiEntity } from "../types";
+import type { WikiEntity } from "../types";
 import { SimpleEntityType } from "./simple-entity";
 
 /** DBpedia/schema.org ontology types mapped to a {@link SimpleEntityType}. */
-const TYPES_MAP: PlainObject<SimpleEntityType> = {
+const TYPES_MAP: Record<string, SimpleEntityType> = {
   "dbo:FictionalCharacter": SimpleEntityType.WORK,
   "wikidata:Q95074": SimpleEntityType.WORK,
   "dbo:Book": SimpleEntityType.WORK,

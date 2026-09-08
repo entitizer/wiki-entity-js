@@ -41,6 +41,3 @@ export class ApiError extends WikiEntityError {
     super(message);
   }
 }
-
-/** Invalid arguments were passed to a public function. */
-export class InvalidParamsError extends WikiEntityError {}
