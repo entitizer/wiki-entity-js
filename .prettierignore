@@ -1,0 +1,6 @@
+dist
+coverage
+node_modules
+data
+yarn.lock
+package-lock.json

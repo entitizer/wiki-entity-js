@@ -1,20 +1,49 @@
 {
   "name": "wiki-entity",
-  "version": "0.7.0",
-  "description": "Wiki entity fetcher",
-  "main": "./lib/index.js",
-  "types": "./types/index.d.ts",
-  "scripts": {
-    "pretest": "npm run tsc",
-    "test": "mocha -t 60000",
-    "tsc": "tsc",
-    "tscw": "tsc -w",
-    "preversion": "npm run tsc",
-    "postversion": "git push --follow-tags",
-    "prepublish": "npm run tsc"
+  "version": "1.0.0",
+  "description": "Fetch and normalize Wikidata & Wikipedia entities",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
   "engines": {
-    "node": ">=8.0.0"
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run --project unit",
+    "test:watch": "vitest --project unit",
+    "test:coverage": "vitest run --project unit --coverage",
+    "test:integration": "vitest run --project integration",
+    "test:all": "vitest run --project unit --project integration",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build",
+    "data:countries": "tsx scripts/generate-countries.ts",
+    "data:entity-types": "tsx scripts/generate-entity-types.ts",
+    "verify:package": "npm run build && node scripts/verify-package.mjs",
+    "prepack": "npm run clean && npm run build",
+    "preversion": "npm run check",
+    "postversion": "git push --follow-tags"
   },
   "repository": {
     "type": "git",
@@ -26,7 +55,9 @@
     "entity",
     "wikidata",
     "wikipedia",
-    "named-entity"
+    "named-entity",
+    "sparql",
+    "knowledge-graph"
   ],
   "author": "Dumitru Cantea",
   "license": "ISC",
@@ -35,12 +66,16 @@
   },
   "homepage": "https://github.com/entitizer/wiki-entity#readme",
   "devDependencies": {
-    "@types/node": "latest",
-    "debug": "^4.1.1",
-    "mocha": "^9.1.2",
-    "typescript": "latest"
-  },
-  "dependencies": {
-    "axios": "^1.6.0"
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.10.1",
+    "@vitest/coverage-v8": "^5.0.0",
+    "eslint": "^10.10.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.6",
+    "tsup": "^8.5.1",
+    "tsx": "^4.20.6",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.70.0",
+    "vitest": "^5.0.0"
   }
 }

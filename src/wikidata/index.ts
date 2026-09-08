@@ -1,142 +1,175 @@
-import {
+import type {
   WikidataEntities,
-  WikidataPropertyValue,
-  PlainObject,
   WikidataEntitiesParams,
+  WikidataEntity,
   WikidataEntityClaims,
-  AnyPlainObject,
-  WikidataPropsParam
+  WikidataProperty,
+  WikidataPropertyValue
 } from "../types";
-import { getManyEntities } from "./api";
-import { simplifyEntity } from "./simplify_entity";
-import { eachSeries, uniq, isValidWikiId } from "../utils";
+import { chunk, isEntityId, isItemId, isPropertyId } from "../utils";
+import { getManyEntities, MAX_IDS } from "./api";
+import { simplifyEntity } from "./simplify-entity";
 
-export function getEntities(
+/** Props needed to describe a referenced entity, without pulling its claims. */
+const META_PROPS = ["info", "labels", "descriptions", "datatype"] as const;
+
+/**
+ * Fetch and simplify Wikidata entities, optionally resolving the labels of the
+ * properties and item values referenced by their claims.
+ */
+export async function getEntities(
   params: WikidataEntitiesParams
 ): Promise<WikidataEntities> {
-  const claims = params.claims || "none";
+  const claimsMode = params.claims || "none";
   const lang = params.language || "en";
 
-  return getManyEntities(params).then(function (entities) {
-    const ids = Object.keys(entities).filter((id) => isValidWikiId(id));
-    ids.forEach((id) => {
-      entities[id] = simplifyEntity(lang, entities[id]);
-    });
+  const raw = await getManyEntities(params);
 
-    const tasks = [];
-    if (~["all", "property"].indexOf(claims)) {
-      tasks.push(exploreEntitiesProperties(entities, lang));
-    }
-    if (~["all", "item"].indexOf(claims)) {
-      tasks.push(
-        eachSeries(ids, (id) =>
-          exploreEntityClaims(entities[id].claims, { language: lang })
-        )
-      );
-    }
-
-    return Promise.all(tasks).then(() => entities);
-  });
-}
-
-function exploreEntitiesProperties(
-  entities: WikidataEntities,
-  lang: string
-): Promise<any> {
-  let ids: string[] = [];
-  const entitiesIds = Object.keys(entities);
-  entitiesIds.forEach((entityId) => {
-    const entity = entities[entityId];
-    if (entity.claims) {
-      ids = ids.concat(Object.keys(entity.claims));
-    }
-  });
-
-  if (!ids.length) {
-    return Promise.resolve();
+  const entities: WikidataEntities = {};
+  for (const [id, data] of Object.entries(raw)) {
+    if (!isEntityId(id)) continue;
+    entities[id] = simplifyEntity(lang, data);
   }
 
-  ids = uniq(ids);
+  const tasks: Promise<void>[] = [];
+  if (claimsMode === "all" || claimsMode === "property") {
+    tasks.push(resolveProperties(entities, params));
+  }
+  if (claimsMode === "all" || claimsMode === "item") {
+    tasks.push(resolveItemValues(entities, params));
+  }
+  await Promise.all(tasks);
 
-  return getEntities({
-    ids: ids,
-    language: lang,
-    props: [
-      WikidataPropsParam.info,
-      WikidataPropsParam.labels,
-      WikidataPropsParam.descriptions,
-      WikidataPropsParam.datatype
-    ],
-    claims: "none"
-  }).then(function (properties) {
-    Object.keys(properties).forEach((propertyId) => {
-      entitiesIds.forEach((entityId) => {
-        const entity = entities[entityId];
-        if (entity.claims && entity.claims[propertyId]) {
-          if (entity.claims && entity.claims[propertyId]) {
-            for (var prop in properties[propertyId]) {
-              if (~["label", "description"].indexOf(prop)) {
-                entity.claims[propertyId][prop] = properties[propertyId][prop];
-              }
-            }
-          }
-        }
-      });
-    });
-    return entities;
-  });
+  return entities;
 }
 
-export function exploreEntityClaims(
-  claims: WikidataEntityClaims,
+/** Attach `label`/`description`/`datatype` to every property of every claim. */
+async function resolveProperties(
+  entities: WikidataEntities,
   params: WikidataEntitiesParams
 ): Promise<void> {
-  if (!claims) {
-    return Promise.resolve();
+  const byId = new Map<string, WikidataProperty[]>();
+  for (const entity of Object.values(entities)) {
+    forEachProperty(entity.claims, (property) => {
+      const list = byId.get(property.id);
+      if (list) list.push(property);
+      else byId.set(property.id, [property]);
+    });
   }
 
-  const ids: string[] = [];
-  const paths: PlainObject<
-    { pid: string; value: WikidataPropertyValue; index: number }[]
-  > = {}; // id=[key:position]
-  Object.keys(claims).forEach((property) => {
-    claims[property].values.forEach((propertyValue, index) => {
-      if (propertyValue.datatype === "wikibase-item") {
-        const id = propertyValue.value;
-        paths[id] = paths[id] || [];
-        paths[id].push({ pid: property, value: propertyValue, index });
-        if (ids.indexOf(id) < 0) {
-          ids.push(id);
-        }
-      }
-    });
-  });
+  const ids = [...byId.keys()].filter(isPropertyId);
+  if (ids.length === 0) return;
 
-  if (ids.length === 0) {
-    return Promise.resolve();
+  const meta = await fetchEntityMeta(ids, params);
+  for (const [id, properties] of byId) {
+    const source = meta[id];
+    if (!source) continue;
+    for (const property of properties) copyMeta(source, property);
+  }
+}
+
+/** Attach `label`/`description` to every `wikibase-item` claim value. */
+async function resolveItemValues(
+  entities: WikidataEntities,
+  params: WikidataEntitiesParams
+): Promise<void> {
+  await exploreEntityClaims(
+    Object.values(entities).map((entity) => entity.claims),
+    params
+  );
+}
+
+/**
+ * Resolve the `wikibase-item` values inside one or more claim trees, attaching
+ * a `label` and `description` to each of them in place.
+ */
+export async function exploreEntityClaims(
+  claims:
+    WikidataEntityClaims | undefined | (WikidataEntityClaims | undefined)[],
+  params: WikidataEntitiesParams
+): Promise<void> {
+  const trees = Array.isArray(claims) ? claims : [claims];
+  const byId = new Map<string, WikidataPropertyValue[]>();
+  for (const tree of trees) {
+    forEachValue(tree, (value) => {
+      if (typeof value.value !== "string" || !isItemId(value.value)) return;
+      const list = byId.get(value.value);
+      if (list) list.push(value);
+      else byId.set(value.value, [value]);
+    });
   }
 
-  params.ids = ids;
-  params.props = params.props || [
-    WikidataPropsParam.info,
-    WikidataPropsParam.labels,
-    WikidataPropsParam.descriptions,
-    WikidataPropsParam.datatype
-  ];
-  params.claims = params.claims || "none";
+  const ids = [...byId.keys()];
+  if (ids.length === 0) return;
 
-  return getEntities(params).then((entities) => {
-    Object.keys(entities).forEach((id) => {
-      const item = entities[id];
-      const pa = paths[item.id] || [];
-      pa.forEach((pai) => {
-        const val: AnyPlainObject = claims[pai.pid].values[pai.index];
-        for (var prop in item) {
-          if (~["label", "description"].indexOf(prop)) {
-            val[prop] = item[prop];
-          }
-        }
-      });
+  const meta = await fetchEntityMeta(ids, params);
+  for (const [id, values] of byId) {
+    const source = meta[id];
+    if (!source) continue;
+    for (const value of values) copyMeta(source, value);
+  }
+}
+
+function copyMeta(
+  source: WikidataEntity,
+  target: { label?: string; description?: string; datatype?: string }
+): void {
+  if (source.label !== undefined) target.label = source.label;
+  if (source.description !== undefined) target.description = source.description;
+  if (source.datatype !== undefined) target.datatype = source.datatype;
+}
+
+/**
+ * Fetch label/description metadata for arbitrarily many ids, in a single pass
+ * per {@link MAX_IDS} sized group and without recursing into their claims.
+ */
+async function fetchEntityMeta(
+  ids: string[],
+  params: WikidataEntitiesParams
+): Promise<WikidataEntities> {
+  const lang = params.language || "en";
+  const result: WikidataEntities = {};
+
+  for (const group of chunk(ids, MAX_IDS)) {
+    const raw = await getManyEntities({
+      ids: group,
+      language: lang,
+      languages: params.languages,
+      props: [...META_PROPS],
+      redirect: params.redirect,
+      httpTimeout: params.httpTimeout,
+      signal: params.signal
     });
-  });
+    for (const [id, data] of Object.entries(raw)) {
+      result[id] = simplifyEntity(lang, data);
+    }
+  }
+
+  return result;
+}
+
+function forEachProperty(
+  claims: WikidataEntityClaims | undefined,
+  fn: (property: WikidataProperty) => void
+): void {
+  if (!claims) return;
+  for (const property of Object.values(claims)) {
+    fn(property);
+    for (const value of property.values) {
+      if (value.qualifiers) forEachProperty(value.qualifiers, fn);
+    }
+  }
+}
+
+function forEachValue(
+  claims: WikidataEntityClaims | undefined,
+  fn: (value: WikidataPropertyValue) => void
+): void {
+  if (!claims) return;
+  for (const property of Object.values(claims)) {
+    for (const value of property.values) {
+      fn(value);
+      if (value.qualifiers) forEachValue(value.qualifiers, fn);
+    }
+  }
 }

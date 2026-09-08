@@ -1,123 +1,281 @@
-import { WikiEntity, WikiEntities, WikiEntitiesParams } from "./types";
+import type { WikiEntities, WikiEntitiesParams, WikiEntity } from "./types";
+import { isItemId } from "./utils";
 import { getEntities as getWikidataEntities } from "./wikidata";
-import { Api as WikipediaApi } from "./wikipedia/api";
-import { isValidWikiId } from "./utils";
-import { getEntityTypesByName } from "./wikidata/get_entity_types";
+import { getEntityTypesByNames } from "./wikidata/entity-types";
+import { queryPages } from "./wikipedia/api";
 
-export { simplifyEntity } from "./wikidata/simplify_entity";
+export { simplifyEntity } from "./wikidata/simplify-entity";
+export type { SimplifyEntityOptionsType } from "./wikidata/simplify-entity";
+export {
+  simplifyClaim,
+  simplifyClaims,
+  simplifyPropertyClaims,
+  stringifyCoordinates,
+  stringifyTime
+} from "./wikidata/simplify-claims";
+export type { SimplifyClaimsOptions } from "./wikidata/simplify-claims";
+export { exploreEntityClaims } from "./wikidata";
+export {
+  getEntityTypesByName,
+  getEntityTypesByNames,
+  getDbpediaEndpoint,
+  setDbpediaEndpoint,
+  KNOWN_TYPE_PREFIXES
+} from "./wikidata/entity-types";
 export { setUserAgent, getUserAgent } from "./request";
-export { WikipediaApi };
-export * from "./simpleEntity";
+export {
+  ApiError,
+  HttpError,
+  InvalidParamsError,
+  WikiEntityError
+} from "./errors";
+export {
+  Api as WikipediaApi,
+  getExtract,
+  getExtracts,
+  getRedirects,
+  queryPages
+} from "./wikipedia/api";
+export type {
+  ApiResult,
+  ExtractType,
+  ExtractsParamsType,
+  QueryPagesOptions,
+  QueryPagesResult,
+  ResolvedTitle
+} from "./wikipedia/api";
+export { chunk, isEntityId, isItemId, isPropertyId, uniq } from "./utils";
+export * from "./simple-entity";
 export * from "./types";
 
+/**
+ * Fetch entities from Wikidata, optionally enriched with data from Wikipedia
+ * (page id, extract, redirects, categories) and DBpedia (ontology types).
+ *
+ * Results follow the order of the requested `ids`/`titles`; entities that do
+ * not exist are omitted.
+ *
+ * @example
+ * const [europe] = await getEntities({ language: "en", titles: ["Europe"] });
+ */
 export async function getEntities(
   params: WikiEntitiesParams
 ): Promise<WikiEntity[]> {
   const lang = params.language || "en";
 
-  const entities = await getWikidataEntities(params);
+  const entities: WikiEntities = await getWikidataEntities(params);
 
-  const ids = Object.keys(entities).filter((id) => isValidWikiId(id));
-
+  const ids = Object.keys(entities).filter(isItemId);
   if (ids.length === 0) return [];
 
-  const wikiApi = new WikipediaApi({}, params.httpTimeout);
-
-  if (params.extract) wikiApi.extract(params.extract);
-  if (params.redirects) wikiApi.redirects();
-  if (params.categories) wikiApi.categories();
-  const useWikiApi =
+  const wantsWikipedia = Boolean(
     params.extract ||
     params.redirects ||
     params.categories ||
-    params.wikiPageId !== false;
+    params.wikiPageId !== false
+  );
 
-  const tasks: unknown[] = [];
-
-  if (useWikiApi && entities[ids[0]] && entities[ids[0]].sitelinks) {
-    const titleIds = ids.reduce((prev: any, id) => {
-      if (
-        entities[id] &&
-        entities[id].sitelinks &&
-        entities[id].sitelinks[lang]
-      ) {
-        prev[entities[id].sitelinks[lang]] = id;
-      }
-      return prev;
-    }, {});
-    tasks.push(
-      wikiApi
-        .query(lang, {
-          titles: ids
-            .map(
-              (id) =>
-                (entities[id] &&
-                  entities[id].sitelinks &&
-                  entities[id].sitelinks[lang]) ||
-                null
-            )
-            .filter((item) => !!item)
-            .join("|")
-        })
-        .then((apiResults) =>
-          apiResults.forEach((result) => {
-            const entity = entities[titleIds[result.title]];
-            entity.pageid = result.pageid;
-            if (params.extract) entity.extract = result.extract;
-
-            if (params.redirects) entity.redirects = result.redirects;
-
-            if (params.categories) entity.categories = result.categories;
-          })
-        )
-    );
+  const tasks: Promise<void>[] = [];
+  if (wantsWikipedia) {
+    tasks.push(enrichFromWikipedia(entities, ids, lang, params));
+  } else {
+    // `pageid` always means "Wikipedia page id"; without the Wikipedia lookup
+    // we would otherwise leak Wikidata's own page id under that name.
+    for (const id of ids) delete entities[id]?.pageid;
   }
 
   if (params.types === true || Array.isArray(params.types)) {
-    const prefixes: string[] = Array.isArray(params.types)
-      ? params.types
-      : null;
-    ids.forEach((id) => {
-      if (entities[id] && entities[id].sitelinks) {
-        const enName = entities[id].sitelinks["en"];
-        if (enName) {
-          tasks.push(
-            getEntityTypesByName(enName, prefixes).then((types) => {
-              entities[id].types = types;
-            })
-          );
-        }
-      }
-    });
+    tasks.push(enrichWithTypes(entities, ids, params));
   }
 
   await Promise.all(tasks);
 
-  return Object.keys(entities)
-    .map((id) => entities[id])
-    .filter((it) => !!it);
+  return orderEntities(entities, ids, params);
 }
 
+/** Attach Wikipedia `pageid`, `extract`, `redirects` and `categories`. */
+async function enrichFromWikipedia(
+  entities: WikiEntities,
+  ids: string[],
+  lang: string,
+  params: WikiEntitiesParams
+): Promise<void> {
+  const idOfTitle = new Map<string, string>();
+  for (const id of ids) {
+    const title = entities[id]?.sitelinks?.[lang];
+    // First sitelink wins: two items sharing an article would be a data error.
+    if (title && !idOfTitle.has(title)) idOfTitle.set(title, id);
+  }
+
+  if (idOfTitle.size === 0) {
+    for (const id of ids) delete entities[id]?.pageid;
+    return;
+  }
+
+  const { pages, requestedTitleOf } = await queryPages({
+    lang,
+    titles: [...idOfTitle.keys()],
+    followRedirects: true,
+    ...(params.extract ? { extract: params.extract } : {}),
+    ...(params.redirects ? { redirects: true } : {}),
+    ...(params.categories ? { categories: true } : {}),
+    ...(params.httpTimeout === undefined
+      ? {}
+      : { httpTimeout: params.httpTimeout }),
+    ...(params.signal === undefined ? {} : { signal: params.signal })
+  });
+
+  const enriched = new Set<string>();
+
+  for (const page of pages) {
+    // MediaWiki normalises titles and follows redirects, so the returned title
+    // is not necessarily the one we asked for.
+    const requested = requestedTitleOf.get(page.title) ?? page.title;
+    const id = idOfTitle.get(requested);
+    const entity = id === undefined ? undefined : entities[id];
+    if (!entity || id === undefined) continue;
+
+    enriched.add(id);
+    if (params.wikiPageId === false) delete entity.pageid;
+    else if (page.pageid) entity.pageid = page.pageid;
+
+    if (params.extract && page.extract) entity.extract = page.extract;
+    if (params.redirects && page.redirects) entity.redirects = page.redirects;
+    if (params.categories && page.categories) {
+      entity.categories = page.categories;
+    }
+  }
+
+  for (const id of ids) {
+    if (!enriched.has(id)) delete entities[id]?.pageid;
+  }
+}
+
+/**
+ * Attach DBpedia ontology types. Types are best-effort enrichment: DBpedia is a
+ * third-party endpoint with frequent downtime, so failures leave `types` unset
+ * rather than failing the whole call.
+ */
+async function enrichWithTypes(
+  entities: WikiEntities,
+  ids: string[],
+  params: WikiEntitiesParams
+): Promise<void> {
+  const idsOfName = new Map<string, string[]>();
+  for (const id of ids) {
+    // DBpedia is built from the English Wikipedia only.
+    const name = entities[id]?.sitelinks?.["en"];
+    if (!name) continue;
+    const list = idsOfName.get(name);
+    if (list) list.push(id);
+    else idsOfName.set(name, [id]);
+  }
+
+  if (idsOfName.size === 0) return;
+
+  try {
+    const types = await getEntityTypesByNames([...idsOfName.keys()], {
+      prefixes: Array.isArray(params.types) ? params.types : undefined,
+      ...(params.httpTimeout === undefined
+        ? {}
+        : { httpTimeout: params.httpTimeout }),
+      ...(params.signal === undefined ? {} : { signal: params.signal })
+    });
+
+    for (const [name, entityIds] of idsOfName) {
+      const entityTypes = types.get(name);
+      if (!entityTypes?.length) continue;
+      for (const id of entityIds) {
+        const entity = entities[id];
+        if (entity) entity.types = entityTypes;
+      }
+    }
+  } catch {
+    // Leave `types` unset; the Wikidata data is still usable.
+  }
+}
+
+/** Return entities in the order their ids/titles were requested. */
+function orderEntities(
+  entities: WikiEntities,
+  ids: string[],
+  params: WikiEntitiesParams
+): WikiEntity[] {
+  if (params.ids?.length) {
+    const seen = new Set<string>();
+    const ordered: WikiEntity[] = [];
+    for (const requested of params.ids) {
+      const entity =
+        entities[requested] ?? findByResolvedId(entities, requested);
+      if (entity && !seen.has(entity.id)) {
+        seen.add(entity.id);
+        ordered.push(entity);
+      }
+    }
+    // Anything the API returned under a different key (redirects) still counts.
+    for (const id of ids) {
+      const entity = entities[id];
+      if (entity && !seen.has(entity.id)) {
+        seen.add(entity.id);
+        ordered.push(entity);
+      }
+    }
+    return ordered;
+  }
+
+  // `wbgetentities` answers in request order, which our batching preserves.
+  return ids
+    .map((id) => entities[id])
+    .filter((entity): entity is WikiEntity => entity !== undefined);
+}
+
+function findByResolvedId(
+  entities: WikiEntities,
+  requested: string
+): WikiEntity | undefined {
+  for (const entity of Object.values(entities)) {
+    if (entity.redirectsFromId === requested) return entity;
+  }
+  return undefined;
+}
+
+export interface MapRedirectsOptions {
+  httpTimeout?: number;
+  signal?: AbortSignal;
+}
+
+/**
+ * Resolve Wikipedia redirect titles to the articles they point at.
+ *
+ * @returns A map of `redirectTitle -> targetTitle`, containing only the titles
+ * that actually are redirects.
+ *
+ * @example
+ * await mapRedirects(["Brashov"], "ro"); // { Brashov: "Brașov" }
+ */
 export async function mapRedirects(
   titles: string[],
-  lang: string
+  lang: string,
+  options: MapRedirectsOptions = {}
 ): Promise<Record<string, string>> {
-  const wikiApi = new WikipediaApi();
-  return wikiApi
-    .redirects()
-    .query(lang, {
-      titles: titles.map((it) => it.replace(/\s+/g, "_")).join("|"),
-      redirects: "yes"
-    })
-    .then((apiResults) => {
-      const result: Record<string, string> = {};
-      apiResults.forEach((r) => {
-        if (r.redirects?.length) {
-          const it = r.redirects.find((it) => titles.includes(it));
-          if (it && it !== r.title) result[it] = r.title;
-        }
-      });
+  if (!titles.length) return {};
 
-      return result;
-    });
+  const { resolved } = await queryPages({
+    lang,
+    titles,
+    followRedirects: true,
+    ...(options.httpTimeout === undefined
+      ? {}
+      : { httpTimeout: options.httpTimeout }),
+    ...(options.signal === undefined ? {} : { signal: options.signal })
+  });
+
+  const result: Record<string, string> = {};
+  for (const [requested, target] of resolved) {
+    if (target.redirected && target.title !== requested) {
+      result[requested] = target.title;
+    }
+  }
+
+  return result;
 }

@@ -1,18 +1,31 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "outDir": "lib",
-        "rootDir": "./src",
-        "target": "es6",
-        "noImplicitAny": true,
-        "removeComments": true,
-        "preserveConstEnums": true,
-        "sourceMap": false,
-        "moduleResolution": "node",
-        "declaration": true,
-        "declarationDir": "types"
-    },
-    "include": [
-        "src/**/*.ts"
-    ]
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "sourceMap": true,
+    "noEmit": true,
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // tsup's .d.ts bundler still injects the deprecated `baseUrl`.
+    "ignoreDeprecations": "6.0",
+
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "scripts/**/*.ts", "*.config.ts"]
 }

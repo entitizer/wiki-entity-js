@@ -1,12 +1,10 @@
-#
-#
-#
-
 .DS_Store
 .env
 node_modules
 npm-debug.log
 *.tgz
-lib
-types
+dist
+coverage
+.vitest
 data/P279
+.scratch
